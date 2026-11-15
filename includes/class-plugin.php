@@ -71,6 +71,16 @@ final class Plugin {
 			'includes/delivery/class-platforms.php',
 			'includes/delivery/class-couriers.php',
 			'includes/delivery/class-delivery.php',
+			'includes/delivery/class-zones.php',
+			'includes/service/class-hours.php',
+			'includes/service/class-schedule.php',
+			'includes/service/class-availability.php',
+			'includes/service/class-allergens.php',
+			'includes/service/class-deals.php',
+			'includes/service/class-kitchen.php',
+			'includes/service/class-tips.php',
+			'includes/service/class-dine-in.php',
+			'includes/service/class-bookings.php',
 		) as $file ) {
 			require_once SIDREST_PATH . $file;
 		}
@@ -87,6 +97,15 @@ final class Plugin {
 		( new Patterns() )->hooks();
 		( new Compat() )->hooks();
 		( new Delivery\Delivery() )->hooks();
+		// 1.2.0: hours and order-ahead times, availability, kitchen, meal deals, tips, dine-in, reservations, zones.
+		( new Delivery\Zones() )->hooks();
+		( new Service\Schedule() )->hooks();
+		( new Service\Availability() )->hooks();
+		( new Service\Deals() )->hooks();
+		( new Service\Kitchen() )->hooks();
+		( new Service\Tips() )->hooks();
+		( new Service\Dine_In() )->hooks();
+		( new Service\Bookings() )->hooks();
 		add_action( 'widgets_init', array( __NAMESPACE__ . '\\Widget', 'register' ) );
 
 		if ( is_admin() ) {
@@ -94,10 +113,16 @@ final class Plugin {
 			require_once SIDREST_PATH . 'includes/admin/class-settings.php';
 			require_once SIDREST_PATH . 'includes/admin/class-qr.php';
 			require_once SIDREST_PATH . 'includes/admin/class-delivery-admin.php';
+			require_once SIDREST_PATH . 'includes/admin/class-extras.php';
+			require_once SIDREST_PATH . 'includes/admin/class-kitchen-admin.php';
+			require_once SIDREST_PATH . 'includes/admin/class-bookings-admin.php';
 			( new Admin\Admin() )->hooks();
 			( new Admin\Settings() )->hooks();
 			( new Admin\Qr() )->hooks();
 			( new Admin\Delivery_Admin() )->hooks();
+			( new Admin\Extras() )->hooks();
+			( new Admin\Kitchen_Admin() )->hooks();
+			( new Admin\Bookings_Admin() )->hooks();
 		}
 
 		/**

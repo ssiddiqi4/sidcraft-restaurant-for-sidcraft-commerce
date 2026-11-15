@@ -174,6 +174,12 @@ class Platforms {
 			'uber_customer_id' => '',
 			'webhook_url'      => '',
 			'webhook_secret'   => '',
+			// 1.2.0: delivery zones by distance (see Zones).
+			'zones'            => array(),
+			'geocoder'         => 'osm',
+			'google_key'       => '',
+			'store_lat'        => '',
+			'store_lng'        => '',
 			'platforms'        => array(),
 		);
 	}

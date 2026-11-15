@@ -1,0 +1,46 @@
+/* Kitchen screen (1.2.0): full screen over the admin, big touch targets. */
+.sidrest-kitchen-page #wpcontent { margin-left: 0; padding-left: 0; }
+.sidrest-kitchen-page #adminmenumain, .sidrest-kitchen-page #wpfooter, .sidrest-kitchen-page .notice:not(.sk-notice) { display: none; }
+.sidrest-kitchen-page #wpbody-content { padding-bottom: 0; }
+.sidrest-kitchen { margin: 0; padding: 12px 16px 24px; background: #f0f0f1; min-height: calc(100vh - 32px); box-sizing: border-box; }
+.sk-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 12px; }
+.sk-status { font-weight: 700; padding: 6px 12px; border-radius: 99px; }
+.sk-status.is-on { background: #d1f2dc; color: #0a5c2b; }
+.sk-status.is-off { background: #fde2e1; color: #8a1f1b; }
+.sk-clock { font-size: 22px; font-weight: 700; margin-right: auto; font-variant-numeric: tabular-nums; }
+.sk-switch { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; }
+.sk-notice { background: #fcf0d4; padding: 8px 12px; border-radius: 6px; }
+.sk-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: start; }
+.sk-col { background: #e4e4e7; border-radius: 10px; padding: 10px; min-height: 60vh; }
+.sk-col__title { margin: 0 0 8px; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+.sk-count { background: #1d2327; color: #fff; border-radius: 99px; padding: 0 9px; font-size: 14px; line-height: 22px; }
+.sk-col--new .sk-count { background: #d63638; }
+.sk-list { display: grid; gap: 10px; }
+.sk-empty { color: #646970; margin: 8px 4px; }
+.sk-card { background: #fff; border-radius: 8px; padding: 10px 12px; border-left: 6px solid #2271b1; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.sk-card--delivery { border-left-color: #8c5cff; }
+.sk-card--table { border-left-color: #00a32a; }
+.sk-card.is-late { border-left-color: #d63638; background: #fff7f7; }
+.sk-card.is-later { opacity: .85; }
+.sk-card__head { display: flex; justify-content: space-between; gap: 8px; font-size: 17px; }
+.sk-card__where { font-weight: 600; }
+.sk-card__meta { margin: 4px 0; color: #50575e; font-size: 13px; }
+.sk-flag { display: inline-block; font-size: 12px; font-weight: 700; border-radius: 4px; padding: 1px 6px; margin-right: 4px; }
+.sk-flag--late { background: #d63638; color: #fff; }
+.sk-flag--unpaid { background: #dba617; color: #1d2327; }
+.sk-items { margin: 8px 0; padding: 0; list-style: none; font-size: 16px; }
+.sk-items li { padding: 4px 0; border-top: 1px dashed #dcdcde; }
+.sk-opt { font-size: 14px; color: #3c434a; padding-left: 14px; }
+.sk-allergen { font-size: 13px; color: #b32d2e; font-weight: 700; padding-left: 14px; }
+.sk-notes { background: #fcf9e8; padding: 6px 8px; border-radius: 4px; font-weight: 600; margin: 6px 0; }
+.sk-who { margin: 4px 0; color: #50575e; font-size: 13px; }
+.sk-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.sk-actions .button { min-height: 40px; }
+.sk-next { margin-left: auto !important; font-size: 16px !important; padding: 0 18px !important; }
+.sk-drawer { position: fixed; top: 32px; right: 0; bottom: 0; width: min(380px, 100vw); background: #fff; box-shadow: -4px 0 16px rgba(0,0,0,.15); padding: 12px 16px; overflow-y: auto; z-index: 100000; }
+.sk-drawer[hidden] { display: none; }
+.sk-drawer__head { display: flex; justify-content: space-between; align-items: center; }
+.sk-search { width: 100%; margin: 8px 0; }
+.sk-dishes { margin: 0; list-style: none; }
+.sk-dishes li { padding: 8px 0; border-bottom: 1px solid #f0f0f1; font-size: 15px; }
+@media (max-width: 900px) { .sk-cols { grid-template-columns: 1fr; } .sk-col { min-height: 0; } }

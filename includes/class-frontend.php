@@ -21,6 +21,7 @@ class Frontend {
 	public function hooks() {
 		add_action( 'init', array( $this, 'register_assets' ), 6 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue' ) );
+		add_action( 'wp_footer', array( $this, 'script_data' ), 1 );
 		add_filter( 'the_content', array( $this, 'single_content' ), 30 );
 	}
 
@@ -49,8 +50,48 @@ class Frontend {
 				'one'   => __( '%d item', 'sidcraft-restaurant-for-sidcraft-commerce' ),
 			)
 		);
+		wp_register_script(
+			'sidrest-booking',
+			SIDREST_URL . 'assets/js/sidrest-booking.js',
+			array(),
+			SIDREST_VERSION,
+			array(
+				'in_footer' => true,
+				'strategy'  => 'defer',
+			)
+		);
+		wp_localize_script(
+			'sidrest-booking',
+			'sidrestBooking',
+			array(
+				'api'  => esc_url_raw( rest_url( Delivery\Delivery::NS . '/' ) ),
+				'i18n' => array(
+					'loading'  => __( 'Finding free tables…', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+					'pickDate' => __( 'Choose a date.', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+					'pickTime' => __( 'Choose a time.', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+					'none'     => __( 'No tables left for this day and party size. Try another day, or call us.', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+					'error'    => __( 'Something went wrong. Please try again or call us.', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+				),
+			)
+		);
 		wp_register_script( 'sidrest-qrcode', SIDREST_URL . 'assets/js/vendor/qrcode.js', array(), '1.4.4', true );
 		wp_register_script( 'sidrest-qr', SIDREST_URL . 'assets/js/sidrest-qr.js', array( 'sidrest-qrcode' ), SIDREST_VERSION, true );
+	}
+
+	/**
+	 * Data the menu script needs, printed only on pages that load it: the
+	 * coming week's opening hours and the REST base (dine-in tables).
+	 */
+	public function script_data() {
+		if ( ! wp_script_is( 'sidrest-menu', 'enqueued' ) ) {
+			return;
+		}
+		$data = array(
+			'api'    => esc_url_raw( rest_url( Delivery\Delivery::NS . '/' ) ),
+			'notNow' => label( 'not_now' ),
+			'hours'  => Service\Hours::for_script(),
+		);
+		wp_add_inline_script( 'sidrest-menu', 'window.sidrestMenu = Object.assign( window.sidrestMenu || {}, ' . wp_json_encode( $data ) . ' );', 'before' );
 	}
 
 	/**

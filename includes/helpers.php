@@ -61,6 +61,43 @@ function defaults() {
 		'labels'             => array(),
 		// Delivery platforms and courier settings (see Delivery\Platforms).
 		'delivery'           => array(),
+		// 1.2.0 — Opening hours (see Hours): weekday (0 = Sunday) => "11:00-14:30, 17:00-22:00".
+		'hours'              => array(),
+		'holidays'           => '',
+		'ordering_paused'    => 0,
+		'closed_mode'        => 'later',
+		'hours_banner'       => 1,
+		// Order ahead (see Schedule).
+		'order_ahead'        => 1,
+		'asap'               => 1,
+		'slot_minutes'       => 15,
+		'slot_capacity'      => 0,
+		'order_days'         => 0,
+		// Kitchen screen.
+		'kitchen_sound'      => 1,
+		'ready_email'        => 1,
+		'ticket_width'       => 80,
+		// Dine-in: one table name per line.
+		'dine_in'            => 0,
+		'tables'             => '',
+		'pay_at_table'       => 1,
+		// Tips.
+		'tips'               => 0,
+		'tip_presets'        => '10, 15, 20',
+		'tip_custom'         => 1,
+		'tip_for'            => 'all',
+		// Allergens.
+		'allergens'          => 1,
+		'allergen_filter'    => 1,
+		// Reservations.
+		'bookings'           => 0,
+		'booking_slot'       => 30,
+		'booking_capacity'   => 20,
+		'booking_max_party'  => 8,
+		'booking_notice'     => 2,
+		'booking_days'       => 60,
+		'booking_confirm'    => 'auto',
+		'booking_reminder'   => 1,
 	);
 }
 
@@ -150,6 +187,17 @@ function default_labels() {
 		'badge_popular'  => __( 'Popular', 'sidcraft-restaurant-for-sidcraft-commerce' ),
 		'badge_seasonal' => __( 'Seasonal', 'sidcraft-restaurant-for-sidcraft-commerce' ),
 		'badge_sale'     => __( 'Sale', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+		// 1.2.0.
+		'sold_out'        => __( 'Sold out today', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+		/* translators: %s: times and days, e.g. "7:00 am–11:00 am, Mon, Tue". */
+		'available_times' => __( 'Served %s', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+		'not_now'         => __( 'Not served right now', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+		'allergens'       => __( 'Allergens', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+		'contains'        => __( 'Contains', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+		'avoid'           => __( 'Hide dishes with', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+		'hours'           => __( 'Opening hours', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+		'book_table'      => __( 'Book a table', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+		'deal_choose'     => __( 'Choose your %s', 'sidcraft-restaurant-for-sidcraft-commerce' ),
 	);
 }
 

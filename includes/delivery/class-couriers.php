@@ -102,8 +102,12 @@ class Couriers {
 			'dropoff_instructions'  => self::limit( (string) get_post_meta( $order->get_id(), '_sidccofo_notes', true ), 280 ),
 			'order_value'           => \SidcraftCommerce\to_minor_units( $order->get_subtotal(), $order->get_currency() ),
 		);
-		$prep = absint( Platforms::get( 'prep_minutes' ) );
-		if ( $prep > 0 ) {
+		// The time the customer chose (order ahead), else now plus the preparation time.
+		$ready = \SidcraftRestaurant\Service\Schedule::ready_by( $order );
+		$prep  = absint( Platforms::get( 'prep_minutes' ) );
+		if ( $ready > time() ) {
+			$body['pickup_time'] = gmdate( 'Y-m-d\TH:i:s\Z', $ready );
+		} elseif ( $prep > 0 ) {
 			$body['pickup_time'] = gmdate( 'Y-m-d\TH:i:s\Z', time() + $prep * MINUTE_IN_SECONDS );
 		}
 		$body = array_filter(

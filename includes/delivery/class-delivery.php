@@ -425,8 +425,13 @@ class Delivery {
 			'sidrest-delivery',
 			'sidrestDelivery',
 			array(
-				'route' => esc_url_raw( rest_url( self::NS . '/fulfilment' ) ),
-				'field' => self::FIELD,
+				'route'        => esc_url_raw( rest_url( self::NS . '/fulfilment' ) ),
+				'field'        => self::FIELD,
+				// 1.2.0: tips and delivery zones by distance.
+				'tipRoute'     => esc_url_raw( rest_url( self::NS . '/tip' ) ),
+				'tipField'     => \SidcraftRestaurant\Service\Tips::FIELD,
+				'tipAmount'    => \SidcraftRestaurant\Service\Tips::AMOUNT,
+				'addressRoute' => Zones::active() ? esc_url_raw( rest_url( self::NS . '/address' ) ) : '',
 			)
 		);
 	}
@@ -435,7 +440,7 @@ class Delivery {
 	 * Load it wherever Sidcraft Commerce's checkout script is.
 	 */
 	public function maybe_enqueue() {
-		if ( Platforms::get( 'fulfilment' ) && wp_script_is( 'sidccofo-checkout', 'enqueued' ) ) {
+		if ( ( Platforms::get( 'fulfilment' ) || \SidcraftRestaurant\setting( 'tips', 0 ) ) && wp_script_is( 'sidccofo-checkout', 'enqueued' ) ) {
 			wp_enqueue_script( 'sidrest-delivery' );
 		}
 	}
@@ -484,7 +489,8 @@ class Delivery {
 			return new \WP_Error( 'sidrest_bad_choice', __( 'Choose pickup or delivery.', 'sidcraft-restaurant-for-sidcraft-commerce' ), array( 'status' => 400 ) );
 		}
 		$cart->session()->set( self::FIELD, $choice );
-		self::refresh_totals( $cart );
+		self::prefill( $cart, array( self::FIELD => $choice ) );
+		self::refresh( $cart );
 		$response = rest_ensure_response(
 			array(
 				'fragments' => \SidcraftCommerce\Fragments::collect( 'checkout' ),
@@ -497,12 +503,28 @@ class Delivery {
 	}
 
 	/**
+	 * Show these values as chosen when the checkout form is next drawn
+	 * (Sidcraft Commerce fills the form from the session's "customer").
+	 *
+	 * @param Cart  $cart   Cart.
+	 * @param array $values field => value.
+	 */
+	public static function prefill( Cart $cart, array $values ) {
+		$customer = (array) $cart->session()->get( 'customer', array() );
+		$cart->session()->set( 'customer', array_merge( $customer, array_map( 'strval', $values ) ) );
+	}
+
+	/**
 	 * Drop the cart's per-request totals so shipping is priced again with
 	 * the new choice.
 	 *
 	 * @param Cart $cart Cart.
 	 */
-	protected static function refresh_totals( Cart $cart ) {
+	public static function refresh( Cart $cart ) {
+		if ( method_exists( $cart, 'forget_totals' ) ) {
+			$cart->forget_totals(); // Sidcraft Commerce 2.0+.
+			return;
+		}
 		$location = $cart->get_location();
 		if ( ! empty( $location['known'] ) ) {
 			$cart->set_location( $location['country'], $location['state'] ); // Same place; clears the cached totals.

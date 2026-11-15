@@ -25,6 +25,8 @@ class Blocks {
 		'sidrest/item'    => 'item',
 		'sidrest/items'   => 'items',
 		'sidrest/qr'      => 'qr',
+		'sidrest/booking' => 'booking-form',
+		'sidrest/hours'   => 'hours',
 	);
 
 	/**
@@ -198,6 +200,8 @@ class Blocks {
 			'item'    => __( 'A single dish or drink.', 'sidcraft-restaurant-for-sidcraft-commerce' ),
 			'items'   => __( 'A short list of menu items for sidebars and footers.', 'sidcraft-restaurant-for-sidcraft-commerce' ),
 			'qr'      => __( 'A QR code that opens your online menu.', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+			'booking-form' => __( 'A form guests use to book a table.', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+			'hours'        => __( 'Your opening hours for the week.', 'sidcraft-restaurant-for-sidcraft-commerce' ),
 		);
 	}
 
@@ -213,6 +217,8 @@ class Blocks {
 			'item'    => 'carrot',
 			'items'   => 'star-filled',
 			'qr'      => 'screenoptions',
+			'booking-form' => 'calendar-alt',
+			'hours'        => 'clock',
 		);
 	}
 }

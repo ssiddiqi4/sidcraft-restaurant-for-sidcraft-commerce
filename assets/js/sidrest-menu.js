@@ -1,7 +1,9 @@
 /**
- * Sidcraft Restaurant — menu search, category and dietary filters, sorting
- * and the section sidebar. Works on the rendered HTML, so menus stay fully
- * cacheable and readable without JavaScript.
+ * Sidcraft Restaurant — menu search, category, dietary and allergen filters,
+ * sorting and the section sidebar; "sold out today", serving times and the
+ * open / closed line, worked out from the clock so cached pages stay right;
+ * and the table a guest scanned (dine-in). Works on the rendered HTML, so
+ * menus stay fully cacheable and readable without JavaScript.
  */
 ( function () {
 	'use strict';
@@ -19,7 +21,7 @@
 		}
 		root.dataset.sidrestReady = '1';
 
-		var state = { q: '', cat: '', diets: [], sort: 'menu' };
+		var state = { q: '', cat: '', diets: [], avoid: [], sort: 'menu' };
 		var search = root.querySelector( '[data-sidrest-search]' );
 		var sort = root.querySelector( '[data-sidrest-sort]' );
 		var status = root.querySelector( '[data-sidrest-status]' );
@@ -38,6 +40,12 @@
 			var diets = ' ' + ( el.dataset.diet || '' ) + ' ';
 			for ( var i = 0; i < state.diets.length; i++ ) {
 				if ( diets.indexOf( ' ' + state.diets[ i ] + ' ' ) === -1 ) {
+					return false;
+				}
+			}
+			var has = ' ' + ( el.dataset.allergens || '' ) + ' ';
+			for ( var j = 0; j < state.avoid.length; j++ ) {
+				if ( has.indexOf( ' ' + state.avoid[ j ] + ' ' ) !== -1 ) {
 					return false;
 				}
 			}
@@ -130,10 +138,23 @@
 				apply();
 				return;
 			}
+			var allergen = e.target.closest( '[data-sidrest-allergen]' );
+			if ( allergen && root.contains( allergen ) ) {
+				allergen.setAttribute( 'aria-pressed', allergen.getAttribute( 'aria-pressed' ) !== 'true' ? 'true' : 'false' );
+				state.avoid = Array.prototype.map.call( root.querySelectorAll( '[data-sidrest-allergen][aria-pressed="true"]' ), function ( b ) {
+					return b.dataset.sidrestAllergen;
+				} );
+				apply();
+				return;
+			}
 			if ( e.target.closest( '[data-sidrest-clear]' ) ) {
 				state.q = '';
 				state.cat = '';
 				state.diets = [];
+				state.avoid = [];
+				root.querySelectorAll( '[data-sidrest-allergen]' ).forEach( function ( b ) {
+					b.setAttribute( 'aria-pressed', 'false' );
+				} );
 				if ( search ) {
 					search.value = '';
 				}
@@ -193,12 +214,139 @@
 		}
 	}
 
+	/* ------------------------------------------------------------------
+	 * The clock: sold out today, serving times, open / closed.
+	 * ------------------------------------------------------------------ */
+
+	function now() {
+		return Date.now() / 1000;
+	}
+
+	function inside( ranges, t ) {
+		for ( var i = 0; i < ranges.length; i++ ) {
+			if ( t >= ranges[ i ][ 0 ] && t < ranges[ i ][ 1 ] ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	function setButtons( scope, off ) {
+		scope.querySelectorAll( 'button[data-sc-add-to-cart], .sidrest-order button[type="submit"]' ).forEach( function ( b ) {
+			if ( off ) {
+				b.dataset.sidrestOff = '1';
+				b.disabled = true;
+			} else if ( b.dataset.sidrestOff ) {
+				delete b.dataset.sidrestOff;
+				b.disabled = false;
+			}
+		} );
+	}
+
+	function clockPass( scope ) {
+		var t = now();
+		// Sold out until the end of the day it was marked.
+		scope.querySelectorAll( '[data-sidrest-item]' ).forEach( function ( el ) {
+			var until = parseInt( el.dataset.soldOutUntil || '0', 10 );
+			var sold = until > t;
+			el.classList.toggle( 'is-sold-out', sold );
+			var badge = el.querySelector( '[data-sidrest-soldout]' );
+			if ( badge ) {
+				badge.hidden = ! sold;
+			}
+			setButtons( el, sold );
+		} );
+		// Menus and sections served at set times.
+		var blocks = scope.matches && scope.matches( '[data-sidrest-times]' ) ? [ scope ] : [];
+		blocks = blocks.concat( Array.prototype.slice.call( scope.querySelectorAll( '[data-sidrest-times]' ) ) );
+		blocks.forEach( function ( block ) {
+			var ranges = [];
+			try {
+				ranges = JSON.parse( block.dataset.sidrestTimes || '[]' );
+			} catch ( e ) {}
+			var off = ! inside( ranges, t );
+			block.classList.toggle( 'is-not-served', off );
+			var note = block.querySelector( '[data-sidrest-served]' );
+			if ( note ) {
+				note.hidden = ! off;
+				note.textContent = off ? ( i18n.notNow || '' ) + ' · ' + ( block.dataset.sidrestTimesLabel || '' ) : '';
+			}
+		} );
+		// Open / closed line.
+		var hours = i18n.hours;
+		scope.querySelectorAll( '[data-sidrest-open-status]' ).forEach( function ( line ) {
+			if ( ! hours ) {
+				line.hidden = true;
+				return;
+			}
+			var text = '';
+			var open = inside( hours.open, t );
+			if ( hours.paused ) {
+				text = hours.pausedT;
+			} else if ( ! open ) {
+				var next = null;
+				for ( var i = 0; i < hours.open.length; i++ ) {
+					if ( hours.open[ i ][ 0 ] > t ) {
+						next = hours.open[ i ];
+						break;
+					}
+				}
+				text = next ? hours.closed.replace( '%s', next[ 2 ] ) : hours.shut;
+				if ( hours.later ) {
+					text += ' ' + hours.later;
+				}
+			}
+			line.hidden = '' === text;
+			line.textContent = text;
+			line.classList.toggle( 'is-closed', '' !== text );
+		} );
+	}
+
+	/* --------------------------------------------- Dine-in: the scanned table */
+
+	function table() {
+		var params = new URLSearchParams( window.location.search );
+		var name = params.get( 'sidrest_table' );
+		var key = params.get( 'k' );
+		if ( ! name || ! key || ! i18n.api ) {
+			return;
+		}
+		var url = i18n.api + 'table';
+		fetch( url, {
+			method: 'POST',
+			credentials: 'same-origin',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify( { table: name, k: key } ),
+		} )
+			.then( function ( r ) {
+				return r.json();
+			} )
+			.then( function ( data ) {
+				document.querySelectorAll( '[data-sidrest-table-status]' ).forEach( function ( line ) {
+					line.textContent = data && data.message ? data.message : '';
+					line.hidden = ! line.textContent;
+				} );
+			} )
+			.catch( function () {} );
+		if ( history.replaceState ) {
+			params.delete( 'sidrest_table' );
+			params.delete( 'k' );
+			var qs = params.toString();
+			history.replaceState( null, '', window.location.pathname + ( qs ? '?' + qs : '' ) + window.location.hash );
+		}
+	}
+
 	function scan( node ) {
 		( node || document ).querySelectorAll( '[data-sidrest-menu]' ).forEach( init );
+		clockPass( node || document );
 	}
 
 	function boot() {
 		scan( document );
+		table();
+		setInterval( function () {
+			clockPass( document );
+		}, 60000 );
 		if ( window.MutationObserver ) {
 			new MutationObserver( function ( list ) {
 				list.forEach( function ( m ) {

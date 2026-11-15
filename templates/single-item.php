@@ -7,7 +7,7 @@
  * Override by copying to: yourtheme/sidcraft-restaurant/single-item.php
  *
  * @package SidcraftRestaurant
- * @version 1.1
+ * @version 1.2.0
  *
  * @var \SidcraftRestaurant\Item $item    Item.
  * @var string                   $content The description (already filtered).
@@ -23,8 +23,9 @@ $sidrest_suppliers = $item->get_suppliers();
 $sidrest_related   = $item->get_related( 4 );
 $sidrest_product   = $item->is_orderable() ? $item->get_product() : null;
 ?>
-<div class="sidrest sidrest-single" style="<?php echo esc_attr( \SidcraftRestaurant\Frontend::css_vars() ); ?>">
-	<div class="sidrest-single__summary">
+<div class="sidrest sidrest-single" style="<?php echo esc_attr( \SidcraftRestaurant\Frontend::css_vars() ); ?>" data-sidrest-single>
+	<div class="sidrest-single__summary sidrest-item<?php echo \SidcraftRestaurant\Service\Availability::sold_out( $item->get_id() ) ? ' is-sold-out' : ''; ?>" data-sidrest-item<?php echo \SidcraftRestaurant\Service\Availability::item_attrs( $item ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in item_attrs(). ?>>
+		<span class="sidrest-item__soldout" data-sidrest-soldout <?php echo \SidcraftRestaurant\Service\Availability::sold_out( $item->get_id() ) ? '' : 'hidden'; ?>><?php echo esc_html( label( 'sold_out' ) ); ?></span>
 		<?php echo Renderer::badges_html( $item ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in Renderer. ?>
 		<?php echo Renderer::prices_html( $item ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in Renderer. ?>
 		<?php echo Renderer::dietary_html( $item ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in Renderer. ?>
@@ -41,6 +42,21 @@ $sidrest_product   = $item->is_orderable() ? $item->get_product() : null;
 	</div>
 
 	<div class="sidrest-single__content"><?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the_content output. ?></div>
+
+	<?php $sidrest_deal = \SidcraftRestaurant\Service\Deals::html( $item->get_id() ); ?>
+	<?php if ( '' !== $sidrest_deal ) : ?>
+		<section class="sidrest-single__block">
+			<?php echo $sidrest_deal; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in Deals::html(). ?>
+		</section>
+	<?php endif; ?>
+
+	<?php $sidrest_allergens = \SidcraftRestaurant\Service\Allergens::html( $item->get_id() ); ?>
+	<?php if ( '' !== $sidrest_allergens ) : ?>
+		<section class="sidrest-single__block">
+			<h2><?php echo esc_html( label( 'allergens' ) ); ?></h2>
+			<?php echo $sidrest_allergens; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in Allergens::html(). ?>
+		</section>
+	<?php endif; ?>
 
 	<?php $sidrest_fields = Renderer::fields_html( $item, false ); ?>
 	<?php if ( '' !== $sidrest_fields ) : ?>

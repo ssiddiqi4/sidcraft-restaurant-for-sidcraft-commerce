@@ -127,6 +127,22 @@ class Qr {
 					<p data-qr-link class="sidrest-qr-tool__link"></p>
 				</div>
 			</div>
+			<?php if ( \SidcraftRestaurant\Service\Dine_In::enabled() ) : ?>
+				<?php
+				$sidrest_tables = array();
+				foreach ( \SidcraftRestaurant\Service\Dine_In::tables() as $sidrest_table ) {
+					$sidrest_tables[] = array(
+						'name' => $sidrest_table,
+						'k'    => \SidcraftRestaurant\Service\Dine_In::sign( $sidrest_table ),
+					);
+				}
+				?>
+				<h2><?php esc_html_e( 'Table QR codes', 'sidcraft-restaurant-for-sidcraft-commerce' ); ?></h2>
+				<p><?php esc_html_e( 'One code per table: guests who scan it order from the menu chosen above, and their order is marked for that table. Print them and put each on its table.', 'sidcraft-restaurant-for-sidcraft-commerce' ); ?></p>
+				<?php /* translators: %s: table name. */ ?>
+				<div class="sidrest-qr-tables" data-qr-tables="<?php echo esc_attr( (string) wp_json_encode( $sidrest_tables ) ); ?>" data-qr-table-label="<?php echo esc_attr__( 'Table %s', 'sidcraft-restaurant-for-sidcraft-commerce' ); ?>"></div>
+				<p><button type="button" class="button button-primary" data-qr-tables-print><?php esc_html_e( 'Print all table cards', 'sidcraft-restaurant-for-sidcraft-commerce' ); ?></button></p>
+			<?php endif; ?>
 		</div>
 		<?php
 	}

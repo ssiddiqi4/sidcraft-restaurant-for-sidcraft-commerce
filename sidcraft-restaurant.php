@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name:       Sidcraft Restaurant for Sidcraft Commerce
- * Description:       Restaurant menus for Sidcraft Commerce: unlimited menus, sections and items, several responsive styles, filters, menu schema, QR codes, online ordering, and delivery through Uber Eats, DoorDash, Grubhub and other platforms.
- * Version:           1.1.3
+ * Description:       Restaurant menus and online ordering for Sidcraft Commerce: menus, styles, filters, QR codes, opening hours, order-ahead time slots, a kitchen screen, table ordering, tips, reservations, meal deals, allergens and delivery zones.
+ * Version:           1.2.0
  * Requires at least: 6.3
  * Requires PHP:      7.4
  * Requires Plugins:  sidcraft-commerce-for-sidcraft-page-builder
@@ -17,7 +17,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'SIDREST_VERSION', '1.1.3' );
+define( 'SIDREST_VERSION', '1.2.0' );
 define( 'SIDREST_FILE', __FILE__ );
 define( 'SIDREST_PATH', plugin_dir_path( __FILE__ ) );
 define( 'SIDREST_URL', plugin_dir_url( __FILE__ ) );

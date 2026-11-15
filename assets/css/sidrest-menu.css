@@ -262,3 +262,62 @@
 .sidrest-delivery__link:focus-visible { outline: 2px solid var(--sidrest-accent, #b45309); outline-offset: 2px; }
 .sidrest-single__summary .sidrest-delivery { margin: 4px 0 0; }
 @media (prefers-reduced-motion: reduce) { .sidrest-delivery__link { transition: none; } }
+
+/* ---------------------------------------------------------------- 1.2.0 */
+.sidrest-booking, .sidrest-hours {
+	--_accent: var(--sidrest-accent, #b45309);
+	--_muted: var(--sidrest-muted, color-mix(in srgb, currentColor 62%, transparent));
+	--_border: var(--sidrest-border, color-mix(in srgb, currentColor 14%, transparent));
+	--_radius: var(--sidrest-radius, 12px);
+}
+
+/* Open / closed, table, serving times. */
+.sidrest__open, .sidrest__table { margin: 0 0 12px; padding: 10px 14px; border-radius: var(--_radius); font-weight: 600; }
+.sidrest__open.is-closed { background: color-mix(in srgb, #d97706 14%, transparent); }
+.sidrest__table { background: color-mix(in srgb, #16a34a 14%, transparent); }
+.sidrest__open[hidden], .sidrest__table[hidden], .sidrest__served[hidden], .sidrest-section__served[hidden] { display: none; }
+.sidrest-section__served, .sidrest__served { margin: -4px 0 12px; color: var(--_muted); font-size: .9rem; font-style: italic; }
+.sidrest-section.is-not-served .sidrest-items, .sidrest.is-not-served .sidrest-items { opacity: .55; }
+
+/* Sold out today. */
+.sidrest-item__soldout { display: inline-block; align-self: flex-start; width: fit-content; margin-top: 6px; padding: 2px 8px; border-radius: 99px; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; background: #b91c1c; color: #fff; }
+.sidrest-item__soldout[hidden] { display: none; }
+.sidrest-item.is-sold-out .sidrest-item__media img, .sidrest-item.is-sold-out .sidrest-item__name, .sidrest-item.is-sold-out .sidrest-prices { opacity: .5; }
+.sidrest-item.is-sold-out .sidrest-order button, .sidrest-single__summary.is-sold-out .sc-atc button { pointer-events: none; }
+
+/* Allergens and meal deals. */
+.sidrest-item__allergens { margin: 6px 0 0; font-size: .85rem; color: var(--_muted); }
+.sidrest-item__allergens-label { font-weight: 700; }
+.sidrest-item__deal { margin: 6px 0 0; padding: 0; list-style: none; font-size: .9rem; }
+.sidrest-item__deal li { margin: 2px 0; }
+.sidrest__chips--allergens { align-items: center; }
+.sidrest__chips-label { font-size: .85rem; font-weight: 600; margin-right: 4px; }
+.sidrest-chip--allergen[aria-pressed="true"] { background: #b91c1c; border-color: #b91c1c; color: #fff; text-decoration: line-through; }
+
+/* Opening hours Unit. */
+.sidrest-hours__list { margin: 0; display: grid; gap: 4px; }
+.sidrest-hours__list > div { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; border-bottom: 1px solid var(--_border); }
+.sidrest-hours__list dt { font-weight: 600; }
+.sidrest-hours__list dd { margin: 0; }
+.sidrest-hours__list .is-today { font-weight: 700; color: var(--_accent); }
+.sidrest-hours__now { margin: 8px 0 0; }
+.sidrest-hours__now[hidden] { display: none; }
+
+/* Table booking form. */
+.sidrest-booking { display: grid; gap: 12px; max-width: 560px; }
+.sidrest-booking__title { margin: 0; }
+.sidrest-booking__row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.sidrest-booking__field { margin: 0; display: grid; gap: 4px; }
+.sidrest-booking__field label, .sidrest-booking__times legend { font-weight: 600; font-size: .92rem; }
+.sidrest-booking input:not([type="radio"]), .sidrest-booking select, .sidrest-booking textarea { width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--_border); border-radius: 8px; font: inherit; }
+.sidrest-booking__times { border: 0; margin: 0; padding: 0; min-width: 0; }
+.sidrest-booking__slots { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.sidrest-booking__slot { cursor: pointer; }
+.sidrest-booking__slot input { position: absolute; opacity: 0; pointer-events: none; }
+.sidrest-booking__slot:has(input:checked) { background: var(--_accent); border-color: var(--_accent); color: #fff; }
+.sidrest-booking__slot:has(input:focus-visible) { outline: 2px solid var(--_accent); outline-offset: 2px; }
+.sidrest-booking__hint, .sidrest-booking__message { margin: 0; color: var(--_muted); }
+.sidrest-booking.is-done .sidrest-booking__message { color: #15803d; font-weight: 700; }
+.sidrest-booking__hp { position: absolute !important; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.sidrest-btn { display: inline-block; padding: 12px 22px; border: 0; border-radius: 8px; background: var(--_accent); color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+.sidrest-btn:disabled { opacity: .6; cursor: not-allowed; }

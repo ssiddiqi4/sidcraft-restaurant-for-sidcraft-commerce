@@ -1,15 +1,15 @@
 === Sidcraft Restaurant for Sidcraft Commerce ===
 Contributors: ssiddiqi4
 Donate link: https://paypal.me/SSiddiqi275
-Tags: restaurant, menu, food, qr code, online ordering
+Tags: restaurant, menu, food ordering, table reservations, delivery
 Requires at least: 6.3
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.1.3
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Restaurant menus for Sidcraft Commerce: unlimited menus and items, six responsive styles, filters, menu schema, QR codes and online ordering.
+Restaurant menus and ordering for Sidcraft Commerce: opening hours, time slots, kitchen screen, table QR ordering, tips, reservations and delivery.
 
 == Description ==
 
@@ -55,12 +55,61 @@ https://www.youtube.com/watch?v=cTvCMLRojPQ
 * Promotions apply to online orders too.
 * Reviews for orderable items use Sidcraft Commerce’s verified-customer reviews.
 
+**Opening hours and order ahead** (new in 1.2)
+
+* Weekly opening hours with several opening times per day (lunch and dinner), late nights past midnight, holidays and closed days, and a one-click “Pause online ordering” for busy nights.
+* When you are closed, customers can still order for later, or ordering can switch off completely. The menu shows “Open now” or “Opens at …”, worked out in the visitor’s browser so cached pages stay right.
+* Order-ahead time slots at checkout: “As soon as possible” or a pickup or delivery time, in slots of 5–60 minutes, up to several days ahead, with a limit on orders per slot so the kitchen is never overbooked. Couriers are booked for the chosen time.
+* An Opening Hours block and Unit for your contact page.
+
+**Kitchen screen** (new in 1.2)
+
+* Restaurant → Kitchen is a full-screen board for a kitchen tablet: paid orders arrive with a sound and move New → Preparing → Ready → Done with one tap. Late and scheduled orders are flagged, with the table, pickup or delivery, items, options, allergens and notes on each card.
+* Mark an order ready and the customer gets a “Your order is ready” email; Done completes pickup and table orders.
+* Print a kitchen ticket from any order on paper of the width you set (for example 58 or 80 mm receipt rolls), or tick “Print new orders” to print each new order automatically.
+* Mark dishes sold out right from the kitchen.
+
+**Table ordering** (new in 1.2)
+
+* List your tables and print a QR card for each one. Guests scan, order from their phone and the order is sent to the kitchen with the table number — no address needed.
+* “Pay at the table” lets dine-in guests order now and pay the server later; online payment works too.
+
+**Tips** (new in 1.2)
+
+* Let customers add a tip at checkout: your own percentages (for example 10, 15, 20%), another amount, or no tip. Offer tips on every order or only on table orders. The tip is shown as its own line in the cart, emails and the order.
+
+**Sold out today and serving times** (new in 1.2)
+
+* Mark a dish “Sold out today” from its screen, the item list or the kitchen. It comes back by itself the next day.
+* Give a menu or section serving times (Breakfast 7–11, lunch specials weekdays 12–3). Outside them the menu says when it is served, and orders for those dishes are only accepted at a time when they are.
+
+**Meal deals and combos** (new in 1.2)
+
+* Turn any item into a meal deal: “Choose your burger”, “Choose your side”, “Choose your drink”, picking from items you choose. Sold-out dishes drop out of the choices, and the kitchen sees exactly what was picked.
+
+**Allergens** (new in 1.2)
+
+* Tag items with the 14 EU and UK allergens (celery, cereals containing gluten, crustaceans, eggs, fish, lupin, milk, molluscs, mustard, tree nuts, peanuts, sesame, soya, sulphites). Menus show “Contains: …”, guests can hide dishes with the allergens they avoid, and the kitchen ticket highlights them.
+
+**Table reservations** (new in 1.2)
+
+* A booking form (block, Unit or `[sidrest_booking]`) that only offers times when you are open and have room, based on the number of guests per slot you set, with notice and party size limits.
+* Confirm bookings automatically or by hand. Guests get confirmation, cancellation and reminder emails with a link to cancel; you get an email for each new booking.
+* Restaurant → Reservations lists today’s and upcoming bookings with quick Confirm, Seated, No-show and Cancel actions.
+
+**Pickup and delivery**
+
+* Offer pickup, delivery or both at your own checkout (Restaurant → Settings → Delivery), paid with your Sidcraft Commerce payment gateways. Set a minimum order, delivery postcodes and how long food takes to prepare.
+* Delivery zones by distance (new in 1.2): for example up to 3 km £2.50, up to 6 km £4 with a £15 minimum. Addresses are measured from your restaurant, and addresses too far away can’t choose delivery.
+* Deliver through Uber Eats, DoorDash, Grubhub, Postmates, Just Eat, Deliveroo and other platforms: give each its own fee and free-delivery amount. When an order is paid, a courier is booked automatically (DoorDash Drive or Uber Direct), the order is sent to your webhook, or staff book the courier themselves. Courier status updates appear on the order.
+* Or simply add “Order on Uber Eats / DoorDash …” buttons to your menus and items.
+
 **Add menus anywhere**
 
-* [Sidcraft Page Builder](https://wordpress.org/plugins/sidcraft-page-builder) Units: Restaurant Menu, Menu Section, Menu Item, Menu Items List and Menu QR Code. From a menu’s screen, “Design a page in Sidcraft Page Builder” creates a page with the menu and opens it in the builder.
-* Gutenberg blocks for the same five elements, in a Restaurant category.
+* [Sidcraft Page Builder](https://wordpress.org/plugins/sidcraft-page-builder) Units: Restaurant Menu, Menu Section, Menu Item, Menu Items List, Menu QR Code, Table Booking and Opening Hours. From a menu’s screen, “Design a page in Sidcraft Page Builder” creates a page with the menu and opens it in the builder.
+* Gutenberg blocks for the same seven elements, in a Restaurant category.
 * Block patterns (menu page, photo grid, drinks list, order online, weekly specials, chef’s special, specials list, table QR card) for pages and block theme templates.
-* Shortcodes: `[sidrest_menu menu="12"]`, `[sidrest_section section="34"]`, `[sidrest_item item="56"]`, `[sidrest_items source="badge" badge="special"]`, `[sidrest_qr menu="12"]`.
+* Shortcodes: `[sidrest_menu menu="12"]`, `[sidrest_section section="34"]`, `[sidrest_item item="56"]`, `[sidrest_items source="badge" badge="special"]`, `[sidrest_qr menu="12"]`, `[sidrest_booking]`, `[sidrest_delivery]`.
 * A widget to list menu items in sidebars and footers.
 * Every menu also has its own page (yoursite.com/restaurant-menu/dinner/).
 
@@ -99,6 +148,12 @@ https://www.youtube.com/watch?v=cTvCMLRojPQ
 
 **Courier status updates** — DoorDash, Uber or your order hub can post status updates to your site’s status URL (shown under Restaurant → Settings → Delivery). Nothing is sent from your site for this.
 
+**OpenStreetMap Nominatim** — only when delivery zones by distance are set up and the address lookup is “OpenStreetMap” (Restaurant → Settings → Delivery). To measure the distance, your site sends nominatim.openstreetmap.org your restaurant’s address and the delivery address the customer types at checkout (street, city, postcode, country). Results are cached. Terms: https://operations.osmfoundation.org/policies/nominatim/ — Privacy: https://osmfoundation.org/wiki/Privacy_Policy
+
+**Google Geocoding API** — instead of OpenStreetMap, only when you choose Google and enter an API key. The same addresses are sent to maps.googleapis.com. Terms: https://cloud.google.com/maps-platform/terms — Privacy: https://policies.google.com/privacy
+
+Entering your restaurant’s latitude and longitude avoids looking up your own address.
+
 **“Order on …” links** — plain links to the store pages you enter. Nothing is sent to the platforms until a visitor clicks one.
 
 QR codes are drawn in the browser with the bundled qrcode-generator library; no external service is used.
@@ -135,11 +190,27 @@ Go to Restaurant → QR codes, pick the menu, and download the code or print tab
 
 = Does it work with page caching? =
 
-Yes. Search, filters and sorting run in the browser on the cached page. Promotions limited to certain hours change the displayed price when the page is next built, so keep cache lifetimes short if you use hourly promotions.
+Yes. Search, filters, sorting, opening hours, serving times and “Sold out today” are worked out in the browser on the cached page. Promotions limited to certain hours change the displayed price when the page is next built, so keep cache lifetimes short if you use hourly promotions.
+
+= How do opening hours and time slots work? =
+
+Set your hours under Restaurant → Settings → Hours & ordering. With “Order ahead” on, checkout offers “As soon as possible” (while you are open) and times in your slots; each slot can be limited to a number of orders. Closed days and holidays are skipped.
+
+= How does table ordering work? =
+
+Turn on dine-in under Restaurant → Settings → Dine-in & tips and list your tables. Restaurant → QR codes then prints a card for each table. Scanning it opens the menu for that table; at checkout “Dine-in at table 5” is chosen and no address is asked for.
+
+= What does the kitchen screen need? =
+
+A tablet or computer with a browser, signed in as a user who can manage orders. Open Restaurant → Kitchen. Tap the screen once so the browser allows the sound. For automatic printing, set the tablet’s default printer; some browsers show a print dialog each time.
+
+= Are reservations linked to orders? =
+
+No, a booking is a table for a number of guests at a time. Guests at the table can still order through their table QR code.
 
 = How do I remove all data when deleting the plugin? =
 
-Settings are removed when you delete the plugin. To remove menus, sections, items and categories too, add `define( 'SIDREST_REMOVE_ALL_DATA', true );` to wp-config.php before deleting it.
+Settings are removed when you delete the plugin. To remove menus, sections, items, reservations and categories too, add `define( 'SIDREST_REMOVE_ALL_DATA', true );` to wp-config.php before deleting it.
 
 == Screenshots ==
 
@@ -148,8 +219,27 @@ Settings are removed when you delete the plugin. To remove menus, sections, item
 3. Ordering style with size choices and the cart.
 4. Luxe style for a wine list.
 5. A menu item page with suppliers, reviews and related items.
+6. The kitchen screen.
+7. Opening hours and order-ahead time slots.
+8. The table booking form.
 
 == Changelog ==
+
+= 1.2.0 =
+* New: opening hours with several times per day, holidays, closed days and “Pause online ordering”; order for later while closed, or stop ordering.
+* New: order-ahead time slots at checkout with a limit on orders per slot. Couriers are booked for the chosen time.
+* New: Restaurant → Kitchen, a full-screen kitchen board (New → Preparing → Ready → Done) with a sound for new orders, a “ready” email, and printed tickets (manual or automatic).
+* New: table ordering with a QR card per table, and a “Pay at the table” payment method.
+* New: “Sold out today” for dishes, from the item, the item list or the kitchen.
+* New: serving times for menus and sections.
+* New: tips at checkout.
+* New: table reservations with a booking form, availability by guests per slot, emails, reminders and a reservations list.
+* New: meal deals and combos.
+* New: the 14 EU/UK allergens, an allergen filter and allergens on kitchen tickets.
+* New: delivery zones by distance, with a fee and minimum order per zone.
+* New: Table Booking and Opening Hours blocks and Units, and the `[sidrest_booking]` shortcode.
+* Templates changed: item.php, menu.php and single-item.php. New: booking.php. If you override them in your theme, compare with the new versions.
+* Readme: documents pickup, delivery, couriers and the new features.
 
 = 1.1.3 =
 * Performance: a menu loads its sections, all their items (with meta and categories) and the products of orderable items in a few batched queries. A 200-item menu went from 746 database queries to 49 and renders in about a third of the time. The Menu Items List unit and widget (latest, category, section, badge and promo sources) batch their items the same way.
@@ -164,10 +254,15 @@ Settings are removed when you delete the plugin. To remove menus, sections, item
 * Fixed: "Translation loading triggered too early" notice (WordPress 6.7+). The Out for delivery order status label is now translated on init.
 
 = 0.1.1 =
-* Fixed errors and warnings reported by Wordpress pluhin check.
+* Fixed errors and warnings reported by WordPress Plugin Check.
 
 = 0.1.0 =
 * First release: menus, sections and items; six styles; search, filters and sorting; sections sidebar; dietary icons and badges; multiple prices; promotions; custom fields; suppliers with maps; related items; online ordering through Sidcraft Commerce; Sidcraft Page Builder Units, blocks, patterns, shortcodes and a widget; QR codes; menu structured data; styling and labelling settings; WPML and Polylang support.
+
+== Upgrade Notice ==
+
+= 1.2.0 =
+Opening hours, time slots, a kitchen screen, table ordering, tips, reservations, meal deals, allergens and delivery zones. Theme overrides of item.php, menu.php and single-item.php should be compared with the new templates.
 
 == Credits ==
 

@@ -101,7 +101,10 @@ class Settings {
 			'labels'   => __( 'Labels', 'sidcraft-restaurant-for-sidcraft-commerce' ),
 			'icons'    => __( 'Icons & badges', 'sidcraft-restaurant-for-sidcraft-commerce' ),
 			'fields'   => __( 'Custom fields', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+			'hours'    => __( 'Hours & ordering', 'sidcraft-restaurant-for-sidcraft-commerce' ),
 			'delivery' => __( 'Delivery', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+			'dinein'   => __( 'Dine-in & tips', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+			'bookings' => __( 'Reservations', 'sidcraft-restaurant-for-sidcraft-commerce' ),
 		);
 	}
 
@@ -133,6 +136,65 @@ class Settings {
 				'schema'            => array( __( 'Menu structured data', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'checkbox', __( 'Adds schema.org Menu data so search engines recognise your menu.', 'sidcraft-restaurant-for-sidcraft-commerce' ) ),
 				'restaurant_name'   => array( __( 'Restaurant name (structured data)', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'text', __( 'Optional. Describes the menu as your restaurant’s menu.', 'sidcraft-restaurant-for-sidcraft-commerce' ) ),
 				'cuisine'           => array( __( 'Cuisine (structured data)', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'text', __( 'Optional, comma separated: Italian, Pizza.', 'sidcraft-restaurant-for-sidcraft-commerce' ) ),
+				'allergens'         => array( __( 'Allergens', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'checkbox', __( 'Tick the 14 declarable allergens (gluten, milk, nuts…) on each item; menus and item pages list them and the kitchen ticket prints them.', 'sidcraft-restaurant-for-sidcraft-commerce' ) ),
+				'allergen_filter'   => array( __( 'Allergen filter', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'checkbox', __( '“Hide dishes with…” buttons above menus.', 'sidcraft-restaurant-for-sidcraft-commerce' ) ),
+			),
+			'hours'    => array(
+				'ordering_paused' => array( __( 'Pause online ordering', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'checkbox', __( 'Busy night or the kitchen is closed early: checkout refuses restaurant orders until you untick this.', 'sidcraft-restaurant-for-sidcraft-commerce' ) ),
+				'holidays'        => array( __( 'Closed on these dates', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'textarea', __( 'One date per line, e.g. 2026-12-25.', 'sidcraft-restaurant-for-sidcraft-commerce' ) ),
+				'closed_mode'     => array(
+					__( 'While closed', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+					'select',
+					'',
+					array(
+						'later'  => __( 'Take orders for later (when we’re open)', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+						'refuse' => __( 'Don’t take orders', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+					),
+				),
+				'hours_banner'    => array( __( '“We’re closed” line above menus', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'checkbox', __( 'Says when you open next. Worked out in the visitor’s browser, so cached pages stay right.', 'sidcraft-restaurant-for-sidcraft-commerce' ) ),
+				'asap'            => array( __( 'Offer “as soon as possible”', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'checkbox', __( 'Uses the preparation time under Delivery.', 'sidcraft-restaurant-for-sidcraft-commerce' ) ),
+				'order_ahead'     => array( __( 'Order ahead', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'checkbox', __( 'Customers can pick a later pickup or delivery time.', 'sidcraft-restaurant-for-sidcraft-commerce' ) ),
+				'slot_minutes'    => array( __( 'Time slots every (minutes)', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'number', '', array( 5, 120 ) ),
+				'slot_capacity'   => array( __( 'Orders per time slot', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'number', __( '0 = no limit. A full slot isn’t offered any more.', 'sidcraft-restaurant-for-sidcraft-commerce' ), array( 0, 500 ) ),
+				'order_days'      => array( __( 'Days ahead customers can order for', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'number', __( '0 = today only.', 'sidcraft-restaurant-for-sidcraft-commerce' ), array( 0, 14 ) ),
+				'kitchen_sound'   => array( __( 'Kitchen screen: sound for new orders', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'checkbox' ),
+				'ready_email'     => array( __( 'Email customers when their order is ready', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'checkbox', __( 'When the kitchen screen moves a pickup or table order to Ready.', 'sidcraft-restaurant-for-sidcraft-commerce' ) ),
+				'ticket_width'    => array( __( 'Printed ticket width (mm)', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'number', __( '80 or 58 for receipt printers.', 'sidcraft-restaurant-for-sidcraft-commerce' ), array( 40, 210 ) ),
+			),
+			'dinein'   => array(
+				'dine_in'      => array( __( 'Ordering at the table', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'checkbox', __( 'Each table gets its own QR code under Restaurant → QR codes. Guests who scan it order from their phone, marked for their table, with no delivery fee.', 'sidcraft-restaurant-for-sidcraft-commerce' ) ),
+				'tables'       => array( __( 'Tables', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'textarea', __( 'One name or number per line: 1, 2, Patio 3…', 'sidcraft-restaurant-for-sidcraft-commerce' ) ),
+				'pay_at_table' => array( __( 'Offer “Pay at the table”', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'checkbox', __( 'The order goes to the kitchen at once and is paid to the server. Guests can still pay online.', 'sidcraft-restaurant-for-sidcraft-commerce' ) ),
+				'tips'         => array( __( 'Tips at checkout', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'checkbox' ),
+				'tip_presets'  => array( __( 'Tip percentages', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'text', __( 'Comma separated, e.g. 10, 15, 20.', 'sidcraft-restaurant-for-sidcraft-commerce' ) ),
+				'tip_custom'   => array( __( 'Let customers enter an amount', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'checkbox' ),
+				'tip_for'      => array(
+					__( 'Ask for tips on', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+					'select',
+					'',
+					array(
+						'all'    => __( 'Every restaurant order', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+						'dinein' => __( 'Table orders only', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+					),
+				),
+			),
+			'bookings' => array(
+				'bookings'          => array( __( 'Online table booking', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'checkbox', __( 'Add the Table Booking Unit or block, or [sidrest_booking], to a page. Bookings are listed under Restaurant → Reservations.', 'sidcraft-restaurant-for-sidcraft-commerce' ) ),
+				'booking_confirm'   => array(
+					__( 'New bookings', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+					'select',
+					'',
+					array(
+						'auto'   => __( 'Confirm automatically', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+						'manual' => __( 'Wait for me to confirm', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+					),
+				),
+				'booking_capacity'  => array( __( 'Seats', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'number', __( 'Most guests booked at the same time (a booking keeps its table 90 minutes).', 'sidcraft-restaurant-for-sidcraft-commerce' ), array( 1, 1000 ) ),
+				'booking_max_party' => array( __( 'Largest party online', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'number', __( 'Bigger groups call you.', 'sidcraft-restaurant-for-sidcraft-commerce' ), array( 1, 50 ) ),
+				'booking_slot'      => array( __( 'Booking times every (minutes)', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'number', '', array( 15, 120 ) ),
+				'booking_notice'    => array( __( 'Book at least (hours ahead)', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'number', '', array( 0, 72 ) ),
+				'booking_days'      => array( __( 'Book up to (days ahead)', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'number', '', array( 1, 365 ) ),
+				'booking_reminder'  => array( __( 'Reminder email the day before', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'checkbox' ),
 			),
 			'style'   => array(
 				'accent'        => array( __( 'Accent colour', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'color', __( 'Buttons, active filters, section links.', 'sidcraft-restaurant-for-sidcraft-commerce' ) ),
@@ -193,9 +255,19 @@ class Settings {
 					case 'number':
 						$out[ $key ] = max( $def[3][0], min( $def[3][1], (int) $value ) );
 						break;
+					case 'textarea':
+						$out[ $key ] = sanitize_textarea_field( (string) $value );
+						break;
 					default:
 						$out[ $key ] = sanitize_text_field( (string) $value );
 				}
+			}
+			if ( 'hours' === $tab ) {
+				$hours = array();
+				for ( $d = 0; $d < 7; $d++ ) {
+					$hours[ $d ] = sanitize_text_field( (string) ( $input['hours'][ $d ] ?? '' ) );
+				}
+				$out['hours'] = $hours;
 			}
 		} elseif ( 'labels' === $tab ) {
 			$labels = array();
@@ -253,12 +325,18 @@ class Settings {
 		echo '<input type="hidden" name="sidrest_settings[_tab]" value="' . esc_attr( $tab ) . '">';
 
 		$fields = $this->fields();
+		if ( 'hours' === $tab ) {
+			$this->render_hours();
+		}
 		if ( isset( $fields[ $tab ] ) ) {
 			echo '<table class="form-table" role="presentation"><tbody>';
 			foreach ( $fields[ $tab ] as $key => $def ) {
 				$this->field( $key, $def );
 			}
 			echo '</tbody></table>';
+			if ( 'dinein' === $tab ) {
+				echo '<p class="description">' . wp_kses_post( sprintf( /* translators: %s: link. */ __( 'Print the table QR codes under <a href="%s">Restaurant → QR codes</a>.', 'sidcraft-restaurant-for-sidcraft-commerce' ), esc_url( admin_url( 'edit.php?post_type=' . Post_Types::MENU . '&page=sidrest-qr' ) ) ) ) . '</p>';
+			}
 		} elseif ( 'labels' === $tab ) {
 			$this->render_labels();
 		} elseif ( 'icons' === $tab ) {
@@ -303,6 +381,9 @@ class Settings {
 			case 'number':
 				echo '<input type="number" class="small-text" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( (string) (int) $value ) . '" min="' . esc_attr( $def[3][0] ) . '" max="' . esc_attr( $def[3][1] ) . '">';
 				break;
+			case 'textarea':
+				echo '<textarea class="large-text" rows="4" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '">' . esc_textarea( (string) $value ) . '</textarea>';
+				break;
 			default:
 				echo '<input type="text" class="regular-text" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( (string) $value ) . '">';
 		}
@@ -310,6 +391,29 @@ class Settings {
 			echo '<p class="description">' . esc_html( $def[2] ) . '</p>';
 		}
 		echo '</td></tr>';
+	}
+
+	/**
+	 * Weekly opening hours grid (Hours tab).
+	 */
+	protected function render_hours() {
+		global $wp_locale;
+		$hours = (array) setting( 'hours', array() );
+		$start = (int) get_option( 'start_of_week', 1 );
+		echo '<h2>' . esc_html__( 'Opening hours', 'sidcraft-restaurant-for-sidcraft-commerce' ) . '</h2>';
+		echo '<p>' . esc_html__( 'One or more ranges a day, e.g. 11:30-14:30, 17:00-22:30. A range may end after midnight (18:00-01:00). Leave a day empty when you are closed. With no hours at all, orders are taken at any time.', 'sidcraft-restaurant-for-sidcraft-commerce' ) . '</p>';
+		echo '<table class="form-table" role="presentation"><tbody>';
+		for ( $i = 0; $i < 7; $i++ ) {
+			$d  = ( $start + $i ) % 7;
+			$id = 'sidrest-hours-' . $d;
+			echo '<tr><th scope="row"><label for="' . esc_attr( $id ) . '">' . esc_html( $wp_locale->get_weekday( $d ) ) . '</label></th><td>';
+			echo '<input type="text" class="regular-text" id="' . esc_attr( $id ) . '" name="sidrest_settings[hours][' . esc_attr( (string) $d ) . ']" value="' . esc_attr( (string) ( $hours[ $d ] ?? '' ) ) . '" placeholder="' . esc_attr__( 'Closed', 'sidcraft-restaurant-for-sidcraft-commerce' ) . '">';
+			echo '</td></tr>';
+		}
+		echo '</tbody></table>';
+		/* translators: %s: time zone. */
+		echo '<p class="description">' . esc_html( sprintf( __( 'Times are in the site’s time zone (%s, Settings → General).', 'sidcraft-restaurant-for-sidcraft-commerce' ), wp_timezone_string() ) ) . '</p>';
+		echo '<h2>' . esc_html__( 'Ordering', 'sidcraft-restaurant-for-sidcraft-commerce' ) . '</h2>';
 	}
 
 	/**
@@ -429,6 +533,20 @@ class Settings {
 				'uber_client_id'   => array( __( 'Client ID', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'text' ),
 				'uber_secret'      => array( __( 'Client secret', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'secret' ),
 			),
+			'zones'    => array(
+				'geocoder'   => array(
+					__( 'Find addresses with', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+					'select',
+					__( 'Only used when you add zones below. OpenStreetMap is free (fair use); Google needs a Geocoding API key.', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+					array(
+						'osm'    => __( 'OpenStreetMap (Nominatim)', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+						'google' => __( 'Google Geocoding', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+					),
+				),
+				'google_key' => array( __( 'Google API key', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'secret' ),
+				'store_lat'  => array( __( 'Restaurant latitude', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'text', __( 'Optional, e.g. 51.5072. Empty: looked up from the address above.', 'sidcraft-restaurant-for-sidcraft-commerce' ) ),
+				'store_lng'  => array( __( 'Restaurant longitude', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'text', __( 'Optional, e.g. -0.1276.', 'sidcraft-restaurant-for-sidcraft-commerce' ) ),
+			),
 			'webhook'  => array(
 				'webhook_url'    => array( __( 'Webhook URL', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'url', __( 'Paid delivery orders for platforms set to “webhook” are posted here as JSON — for your own integration or an order hub that connects to the platform.', 'sidcraft-restaurant-for-sidcraft-commerce' ) ),
 				'webhook_secret' => array( __( 'Signing secret', 'sidcraft-restaurant-for-sidcraft-commerce' ), 'secret', __( 'Optional. Each request then carries X-Sidrest-Signature: sha256=HMAC of the body.', 'sidcraft-restaurant-for-sidcraft-commerce' ) ),
@@ -461,6 +579,9 @@ class Settings {
 					case 'url':
 						$out[ $key ] = esc_url_raw( trim( (string) $value ), array( 'https', 'http' ) );
 						break;
+					case 'select':
+						$out[ $key ] = array_key_exists( (string) $value, $def[3] ) ? (string) $value : (string) array_key_first( $def[3] );
+						break;
 					case 'secret':
 						$value = trim( sanitize_text_field( (string) $value ) );
 						if ( ! empty( $input[ $key . '_clear' ] ) ) {
@@ -474,6 +595,21 @@ class Settings {
 				}
 			}
 		}
+		foreach ( array( 'store_lat', 'store_lng' ) as $key ) {
+			$out[ $key ] = is_numeric( str_replace( ',', '.', (string) ( $out[ $key ] ?? '' ) ) ) ? (string) (float) str_replace( ',', '.', (string) $out[ $key ] ) : '';
+		}
+		$zones = array();
+		foreach ( (array) ( $input['zones'] ?? array() ) as $row ) {
+			$km = (float) str_replace( ',', '.', (string) ( $row['km'] ?? '' ) );
+			if ( $km > 0 ) {
+				$zones[] = array(
+					'km'  => (string) round( $km, 2 ),
+					'fee' => \SidcraftRestaurant\parse_price( $row['fee'] ?? '' ),
+					'min' => \SidcraftRestaurant\parse_price( $row['min'] ?? '' ),
+				);
+			}
+		}
+		$out['zones'] = $zones;
 		if ( isset( $out['store_country'] ) ) {
 			$out['store_country'] = strtoupper( substr( preg_replace( '/[^A-Za-z]/', '', (string) $out['store_country'] ), 0, 2 ) );
 		}
@@ -553,6 +689,7 @@ class Settings {
 			'store'    => array( __( 'Pickup address for couriers', 'sidcraft-restaurant-for-sidcraft-commerce' ), '' ),
 			'doordash' => array( __( 'DoorDash Drive API', 'sidcraft-restaurant-for-sidcraft-commerce' ), __( 'For DoorDash set to “Automatic”. Create access keys at developer.doordash.com; couriers are billed to your DoorDash account.', 'sidcraft-restaurant-for-sidcraft-commerce' ) ),
 			'uber'     => array( __( 'Uber Direct API (Uber Eats, Postmates)', 'sidcraft-restaurant-for-sidcraft-commerce' ), __( 'For Uber Eats or Postmates set to “Automatic”. Find these in the Uber Direct dashboard (direct.uber.com) under Developer; couriers are billed to your Uber account.', 'sidcraft-restaurant-for-sidcraft-commerce' ) ),
+			'zones'    => array( __( 'Delivery zones by distance', 'sidcraft-restaurant-for-sidcraft-commerce' ), __( 'Optional, instead of a postcode list: the customer’s address sets the delivery fee by how far it is from the restaurant. Farther than the last zone, delivery isn’t offered.', 'sidcraft-restaurant-for-sidcraft-commerce' ) ),
 			'webhook'  => array( __( 'Webhook', 'sidcraft-restaurant-for-sidcraft-commerce' ), '' ),
 		);
 		foreach ( $fields as $group => $defs ) {
@@ -565,6 +702,9 @@ class Settings {
 				$this->delivery_field( $key, $def, $s[ $key ] ?? '' );
 			}
 			echo '</tbody></table>';
+			if ( 'zones' === $group ) {
+				$this->render_zones( (array) ( $s['zones'] ?? array() ) );
+			}
 		}
 
 		echo '<h2>' . esc_html__( 'Courier status updates', 'sidcraft-restaurant-for-sidcraft-commerce' ) . '</h2>';
@@ -604,6 +744,13 @@ class Settings {
 			case 'url':
 				echo '<input type="url" class="regular-text" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( (string) $value ) . '" placeholder="https://">';
 				break;
+			case 'select':
+				echo '<select id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '">';
+				foreach ( $def[3] as $v => $t ) {
+					printf( '<option value="%1$s" %2$s>%3$s</option>', esc_attr( $v ), selected( (string) $value, (string) $v, false ), esc_html( $t ) );
+				}
+				echo '</select>';
+				break;
 			default:
 				echo '<input type="text" class="regular-text" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( (string) $value ) . '">';
 		}
@@ -611,5 +758,37 @@ class Settings {
 			echo '<p class="description">' . esc_html( $def[2] ) . '</p>';
 		}
 		echo '</td></tr>';
+	}
+
+	/**
+	 * Zones table (Delivery tab).
+	 *
+	 * @param array $zones Saved zones.
+	 */
+	protected function render_zones( array $zones ) {
+		$sym  = trim( \SidcraftCommerce\currency_symbol() );
+		$rows = array_values( $zones );
+		echo '<div class="sidrest-repeater" data-sidrest-repeater><table class="widefat sidrest-repeater__table" style="max-width:640px"><thead><tr><th>' . esc_html__( 'Up to (km)', 'sidcraft-restaurant-for-sidcraft-commerce' ) . '</th><th>' . esc_html( sprintf( /* translators: %s: currency symbol. */ __( 'Fee (%s)', 'sidcraft-restaurant-for-sidcraft-commerce' ), $sym ) ) . '</th><th>' . esc_html( sprintf( /* translators: %s: currency symbol. */ __( 'Minimum order (%s)', 'sidcraft-restaurant-for-sidcraft-commerce' ), $sym ) ) . '</th><th class="sidrest-repeater__tools"></th></tr></thead><tbody data-rows>';
+		foreach ( $rows as $i => $row ) {
+			$this->zone_row( $i, $row );
+		}
+		echo '</tbody></table><template data-template>';
+		$this->zone_row( '__i__', array() );
+		echo '</template><p><button type="button" class="button" data-add-row>' . esc_html__( 'Add a zone', 'sidcraft-restaurant-for-sidcraft-commerce' ) . '</button></p></div>';
+	}
+
+	/**
+	 * One zone row.
+	 *
+	 * @param int|string $i   Index.
+	 * @param array      $row km, fee, min.
+	 */
+	protected function zone_row( $i, array $row ) {
+		$base = 'sidrest_settings[delivery][zones][' . $i . ']';
+		echo '<tr data-row>';
+		foreach ( array( 'km' => '3', 'fee' => '2.99', 'min' => '' ) as $key => $placeholder ) {
+			echo '<td><input type="text" inputmode="decimal" class="small-text" name="' . esc_attr( $base . '[' . $key . ']' ) . '" value="' . esc_attr( (string) ( $row[ $key ] ?? '' ) ) . '" placeholder="' . esc_attr( $placeholder ) . '"></td>';
+		}
+		echo '<td class="sidrest-repeater__tools"><button type="button" class="button-link sidrest-picker__remove" data-remove-row aria-label="' . esc_attr__( 'Remove', 'sidcraft-restaurant-for-sidcraft-commerce' ) . '">×</button></td></tr>';
 	}
 }

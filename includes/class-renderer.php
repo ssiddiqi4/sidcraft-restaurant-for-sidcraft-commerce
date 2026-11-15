@@ -137,6 +137,16 @@ class Renderer {
 			}
 		}
 		asort( $categories, SORT_NATURAL | SORT_FLAG_CASE );
+		$allergens = array();
+		if ( Service\Allergens::enabled() && setting( 'allergen_filter', 1 ) ) {
+			$used = array();
+			foreach ( $sections as $block ) {
+				foreach ( $block['items'] as $item ) {
+					$used = array_merge( $used, Service\Allergens::of( $item->get_id() ) );
+				}
+			}
+			$allergens = Service\Allergens::names( array_values( array_intersect( array_keys( Service\Allergens::all() ), array_unique( $used ) ) ) );
+		}
 		$diets = array_values( array_intersect( array_keys( Dietary::enabled() ), array_unique( $diets ) ) );
 
 		return Plugin::instance()->templates->render(
@@ -148,6 +158,7 @@ class Renderer {
 				'uid'        => $uid,
 				'categories' => setting( 'enable_categories', 1 ) ? $categories : array(),
 				'diets'      => $diets,
+				'allergens'  => $allergens,
 				'renderer'   => $this,
 			)
 		);

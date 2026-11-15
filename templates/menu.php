@@ -6,7 +6,7 @@
  * Override by copying to: yourtheme/sidcraft-restaurant/menu.php
  *
  * @package SidcraftRestaurant
- * @version 1.1
+ * @version 1.2.0
  *
  * @var \SidcraftRestaurant\Menu|null $menu       Menu (null for a single section).
  * @var array[]                       $sections   Each: section (Section), items (Item[]).
@@ -14,6 +14,7 @@
  * @var string                        $uid        Unique ID prefix for this instance.
  * @var array                         $categories slug => name of categories used.
  * @var string[]                      $diets      Dietary icons used.
+ * @var array                         $allergens  slug => name of allergens used (filter).
  * @var \SidcraftRestaurant\Renderer  $renderer   Renderer.
  */
 
@@ -29,7 +30,8 @@ if ( ! $sections ) {
 
 $sidrest_style   = $args['style'];
 $sidrest_sidebar = $args['sidebar'] && count( $sections ) > 1;
-$sidrest_toolbar = $args['toolbar'] && ( setting( 'enable_search', 1 ) || $categories || ( setting( 'enable_dietary', 1 ) && $diets ) || setting( 'enable_sort', 1 ) );
+$allergens       = isset( $allergens ) ? (array) $allergens : array();
+$sidrest_toolbar = $args['toolbar'] && ( setting( 'enable_search', 1 ) || $categories || ( setting( 'enable_dietary', 1 ) && $diets ) || setting( 'enable_sort', 1 ) || $allergens );
 $sidrest_heading = $args['heading'];
 $sidrest_item_h  = 'h2' === $sidrest_heading ? 'h3' : 'h4';
 $sidrest_classes = array( 'sidrest', 'sidrest--style-' . $sidrest_style );
@@ -38,10 +40,14 @@ if ( $sidrest_sidebar ) {
 }
 $sidrest_order = 0;
 ?>
-<div id="<?php echo esc_attr( $uid ); ?>" class="<?php echo esc_attr( implode( ' ', $sidrest_classes ) ); ?>" style="<?php echo esc_attr( \SidcraftRestaurant\Frontend::css_vars() ); ?>" data-sidrest-menu>
+<div id="<?php echo esc_attr( $uid ); ?>" class="<?php echo esc_attr( implode( ' ', $sidrest_classes ) ); ?>" style="<?php echo esc_attr( \SidcraftRestaurant\Frontend::css_vars() ); ?>" data-sidrest-menu<?php echo $menu ? \SidcraftRestaurant\Service\Availability::block_attrs( $menu->get_id() ) : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in block_attrs(). ?>>
 	<?php if ( $menu && $args['show_title'] ) : ?>
 		<<?php echo esc_html( $sidrest_heading ); ?> class="sidrest__title"><?php echo esc_html( $menu->get_title() ); ?></<?php echo esc_html( $sidrest_heading ); ?>>
 	<?php endif; ?>
+
+	<p class="sidrest__open" data-sidrest-open-status role="status" hidden></p>
+	<p class="sidrest__table" data-sidrest-table-status role="status" hidden></p>
+	<p class="sidrest__served" data-sidrest-served hidden></p>
 
 	<?php
 	/**
@@ -101,6 +107,14 @@ $sidrest_order = 0;
 					<?php endforeach; ?>
 				</div>
 			<?php endif; ?>
+			<?php if ( $allergens ) : ?>
+				<div class="sidrest__chips sidrest__chips--allergens" role="group" aria-label="<?php echo esc_attr( label( 'avoid' ) ); ?>">
+					<span class="sidrest__chips-label"><?php echo esc_html( label( 'avoid' ) ); ?>:</span>
+					<?php foreach ( $allergens as $sidrest_slug => $sidrest_name ) : ?>
+						<button type="button" class="sidrest-chip sidrest-chip--allergen" aria-pressed="false" data-sidrest-allergen="<?php echo esc_attr( $sidrest_slug ); ?>"><?php echo esc_html( $sidrest_name ); ?></button>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
 		</div>
 		<p class="sidrest__status" role="status" aria-live="polite" data-sidrest-status></p>
 	<?php endif; ?>
@@ -119,8 +133,9 @@ $sidrest_order = 0;
 		<div class="sidrest__sections">
 			<?php foreach ( $sections as $sidrest_block ) : ?>
 				<?php $sidrest_section = $sidrest_block['section']; ?>
-				<section class="sidrest-section" id="<?php echo esc_attr( $uid . '-s' . $sidrest_section->get_id() ); ?>" data-sidrest-section>
+				<section class="sidrest-section" id="<?php echo esc_attr( $uid . '-s' . $sidrest_section->get_id() ); ?>" data-sidrest-section<?php echo \SidcraftRestaurant\Service\Availability::block_attrs( $sidrest_section->get_id() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in block_attrs(). ?>>
 					<<?php echo esc_html( $sidrest_heading ); ?> class="sidrest-section__title"><?php echo esc_html( $sidrest_section->get_title() ); ?></<?php echo esc_html( $sidrest_heading ); ?>>
+					<p class="sidrest-section__served" data-sidrest-served hidden></p>
 					<?php if ( '' !== $sidrest_section->get_note() ) : ?>
 						<p class="sidrest-section__note"><?php echo esc_html( $sidrest_section->get_note() ); ?></p>
 					<?php endif; ?>

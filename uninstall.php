@@ -16,7 +16,7 @@ foreach ( array( 'sidrest_menu', 'sidrest_section', 'sidrest_item' ) as $sidrest
 }
 
 if ( defined( 'SIDREST_REMOVE_ALL_DATA' ) && SIDREST_REMOVE_ALL_DATA ) {
-	foreach ( array( 'sidrest_menu', 'sidrest_section', 'sidrest_item' ) as $sidrest_type ) {
+	foreach ( array( 'sidrest_menu', 'sidrest_section', 'sidrest_item', 'sidrest_booking' ) as $sidrest_type ) {
 		$sidrest_ids = get_posts(
 			array(
 				'post_type'      => $sidrest_type,

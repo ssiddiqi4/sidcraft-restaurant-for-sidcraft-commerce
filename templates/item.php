@@ -7,7 +7,7 @@
  * Keep the data-* attributes: search, filters and sorting use them.
  *
  * @package SidcraftRestaurant
- * @version 0.1.0
+ * @version 1.2.0
  *
  * @var \SidcraftRestaurant\Item $item  Item.
  * @var array                    $args  style, show_images, heading.
@@ -33,8 +33,14 @@ if ( $sidrest_image ) {
 if ( $item->promo_active() ) {
 	$sidrest_classes[] = 'is-promo';
 }
+// Sold out today: the browser lifts it at midnight even on a cached page.
+$sidrest_sold      = \SidcraftRestaurant\Service\Availability::sold_out( $item->get_id() );
+$sidrest_allergens = \SidcraftRestaurant\Service\Allergens::enabled() ? \SidcraftRestaurant\Service\Allergens::of( $item->get_id() ) : array();
+if ( $sidrest_sold ) {
+	$sidrest_classes[] = 'is-sold-out';
+}
 ?>
-<article class="<?php echo esc_attr( implode( ' ', $sidrest_classes ) ); ?>" data-sidrest-item data-order="<?php echo esc_attr( $order ); ?>" data-name="<?php echo esc_attr( mb_strtolower( $item->get_name() ) ); ?>" data-price="<?php echo esc_attr( null === $sidrest_min ? '' : $sidrest_min ); ?>" data-cats="<?php echo esc_attr( $sidrest_cats ); ?>" data-diet="<?php echo esc_attr( implode( ' ', $item->get_dietary() ) ); ?>" data-search="<?php echo esc_attr( mb_strtolower( $item->get_name() . ' ' . $sidrest_desc ) ); ?>">
+<article class="<?php echo esc_attr( implode( ' ', $sidrest_classes ) ); ?>" data-sidrest-item data-order="<?php echo esc_attr( $order ); ?>" data-name="<?php echo esc_attr( mb_strtolower( $item->get_name() ) ); ?>" data-price="<?php echo esc_attr( null === $sidrest_min ? '' : $sidrest_min ); ?>" data-cats="<?php echo esc_attr( $sidrest_cats ); ?>" data-diet="<?php echo esc_attr( implode( ' ', $item->get_dietary() ) ); ?>" data-search="<?php echo esc_attr( mb_strtolower( $item->get_name() . ' ' . $sidrest_desc ) ); ?>" data-allergens="<?php echo esc_attr( implode( ' ', $sidrest_allergens ) ); ?>"<?php echo \SidcraftRestaurant\Service\Availability::item_attrs( $item ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in item_attrs(). ?>>
 	<?php if ( $sidrest_image ) : ?>
 		<div class="sidrest-item__media">
 			<?php if ( $sidrest_link ) : ?>
@@ -61,9 +67,12 @@ if ( $item->promo_active() ) {
 		<?php if ( ! $sidrest_image ) : ?>
 			<?php echo Renderer::badges_html( $item ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in Renderer. ?>
 		<?php endif; ?>
+		<span class="sidrest-item__soldout" data-sidrest-soldout <?php echo $sidrest_sold ? '' : 'hidden'; ?>><?php echo esc_html( \SidcraftRestaurant\label( 'sold_out' ) ); ?></span>
 		<?php if ( '' !== $sidrest_desc ) : ?>
 			<p class="sidrest-item__desc"><?php echo esc_html( $sidrest_desc ); ?></p>
 		<?php endif; ?>
+		<?php echo \SidcraftRestaurant\Service\Deals::html( $item->get_id() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in Deals::html(). ?>
+		<?php echo \SidcraftRestaurant\Service\Allergens::html( $item->get_id() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in Allergens::html(). ?>
 		<?php echo Renderer::fields_html( $item ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in Renderer. ?>
 		<?php echo Renderer::rating_html( $item ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by the Unit. ?>
 		<?php if ( 'ordering' === $sidrest_style ) : ?>

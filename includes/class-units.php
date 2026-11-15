@@ -46,7 +46,7 @@ class Units {
 	 */
 	public function register( $registry ) {
 		require_once SIDREST_PATH . 'includes/units/abstract-unit.php';
-		foreach ( array( 'menu', 'section', 'item', 'items', 'qr' ) as $name ) {
+		foreach ( array( 'menu', 'section', 'item', 'items', 'qr', 'booking', 'hours' ) as $name ) {
 			require_once SIDREST_PATH . 'includes/units/class-unit-' . $name . '.php';
 		}
 		$registry->register( new Units\Menu_Unit() );
@@ -54,6 +54,8 @@ class Units {
 		$registry->register( new Units\Item_Unit() );
 		$registry->register( new Units\Items_Unit() );
 		$registry->register( new Units\Qr_Unit() );
+		$registry->register( new Units\Booking_Unit() );
+		$registry->register( new Units\Hours_Unit() );
 	}
 
 	/**

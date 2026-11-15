@@ -182,6 +182,67 @@
 			}, 300 );
 		} );
 		refresh();
+		tables( wrap.parentNode, url, color, bg );
+	}
+
+	// One code per table (dine-in), for the menu chosen above.
+	function tables( page, url, color, bg ) {
+		var box = page.querySelector( '[data-qr-tables]' );
+		if ( ! box ) {
+			return;
+		}
+		var list = JSON.parse( box.getAttribute( 'data-qr-tables' ) || '[]' );
+		var label = box.getAttribute( 'data-qr-table-label' ) || '%s';
+		var esc = function ( s ) {
+			var d = document.createElement( 'div' );
+			d.textContent = s;
+			return d.innerHTML;
+		};
+		function linkFor( t ) {
+			var base = url();
+			return base + ( base.indexOf( '?' ) === -1 ? '?' : '&' ) + 'sidrest_table=' + encodeURIComponent( t.name ) + '&k=' + encodeURIComponent( t.k );
+		}
+		function draw() {
+			box.textContent = '';
+			if ( ! url() ) {
+				return;
+			}
+			list.forEach( function ( t ) {
+				var fig = document.createElement( 'figure' );
+				fig.className = 'sidrest-qr-tables__item';
+				fig.innerHTML = svg( linkFor( t ), color(), bg() ) + '<figcaption>' + esc( label.replace( '%s', t.name ) ) + '</figcaption>';
+				box.appendChild( fig );
+			} );
+		}
+		page.querySelectorAll( '[data-qr-target], [data-qr-url], [data-qr-color], [data-qr-bg]' ).forEach( function ( el ) {
+			el.addEventListener( 'input', draw );
+			el.addEventListener( 'change', draw );
+		} );
+		draw();
+		var btn = page.querySelector( '[data-qr-tables-print]' );
+		if ( btn ) {
+			btn.addEventListener( 'click', function () {
+				var cards = list.map( function ( t ) {
+					return '<div class="card">' + svg( linkFor( t ), color(), bg() ) + '<p>' + esc( label.replace( '%s', t.name ) ) + '</p><small>' + esc( ( page.querySelector( '[data-qr-caption]' ) || {} ).value || '' ) + '</small></div>';
+				} ).join( '' );
+				var w = window.open( '', '_blank' );
+				if ( ! w ) {
+					return;
+				}
+				w.document.write(
+					'<!doctype html><html><head><meta charset="utf-8"><title>QR</title>' +
+					'<style>body{margin:0;font-family:system-ui,sans-serif}.sheet{display:grid;grid-template-columns:1fr 1fr;gap:12mm;padding:12mm}' +
+					'.card{border:1px dashed #bbb;border-radius:6mm;padding:8mm;text-align:center;break-inside:avoid}.card svg{width:55mm;height:55mm}' +
+					'.card p{margin:4mm 0 0;font-size:18pt;font-weight:700}.card small{font-size:11pt}</style></head><body>' +
+					'<div class="sheet">' + cards + '</div></body></html>'
+				);
+				w.document.close();
+				w.focus();
+				setTimeout( function () {
+					w.print();
+				}, 300 );
+			} );
+		}
 	}
 
 	function boot() {
