@@ -71,7 +71,22 @@ class Dine_In {
 	 * @return string
 	 */
 	public static function sign( $table ) {
-		return substr( hash_hmac( 'sha256', 'table|' . $table, wp_salt( 'auth' ) ), 0, 10 );
+		return substr( hash_hmac( 'sha256', 'table|' . $table, self::key() ), 0, 10 );
+	}
+
+	/**
+	 * The key table codes are signed with. Kept in its own option (not the
+	 * WordPress salts) so printed QR cards survive a salt change.
+	 *
+	 * @return string
+	 */
+	protected static function key() {
+		$key = (string) get_option( 'sidrest_table_key', '' );
+		if ( strlen( $key ) < 32 ) {
+			$key = wp_generate_password( 64, true, true );
+			update_option( 'sidrest_table_key', $key, true );
+		}
+		return $key;
 	}
 
 	/**
@@ -158,7 +173,12 @@ class Dine_In {
 	 * @return \WP_REST_Response
 	 */
 	public function rest_clear() {
-		Cart::instance()->session()->set( self::SESSION, array() );
+		$cart = Cart::instance();
+		$cart->session()->set( self::SESSION, array() );
+		if ( 'table' === (string) $cart->session()->get( Delivery::FIELD, '' ) ) {
+			$cart->session()->set( Delivery::FIELD, '' );
+			Delivery::prefill( $cart, array( Delivery::FIELD => '' ) );
+		}
 		return rest_ensure_response( array( 'ok' => true ) );
 	}
 
@@ -185,7 +205,7 @@ class Dine_In {
 	 * @return array
 	 */
 	public function no_address( $fields ) {
-		if ( ( is_admin() && ! wp_doing_ajax() ) || ! did_action( 'init' ) || ! isset( $fields[ Delivery::FIELD ] ) ) {
+		if ( ! Delivery::shopper_context() || ! isset( $fields[ Delivery::FIELD ] ) ) {
 			return $fields;
 		}
 		$choices = Delivery::choices();

@@ -45,6 +45,7 @@ class Availability {
 		add_action( 'admin_post_sidrest_sold_out', array( $this, 'toggle_from_list' ) );
 		add_action( 'save_post_' . Post_Types::SECTION, array( __CLASS__, 'forget' ) );
 		add_action( 'save_post_' . Post_Types::MENU, array( __CLASS__, 'forget' ) );
+		add_action( 'deleted_post', array( $this, 'forget_deleted' ), 10, 2 );
 	}
 
 	/*
@@ -161,17 +162,20 @@ class Availability {
 		}
 		$day   = (int) wp_date( 'w', $time );
 		$clock = wp_date( 'H:i', $time );
-		if ( $t['days'] && ! in_array( $day, $t['days'], true ) ) {
-			// Past midnight: still the evening before.
-			$prev = ( $day + 6 ) % 7;
-			if ( ! ( '' !== $t['from'] && '' !== $t['to'] && $t['to'] < $t['from'] && $clock < $t['to'] && in_array( $prev, $t['days'], true ) ) ) {
-				return false;
-			}
-		}
+		$on    = static function ( $d ) use ( $t ) {
+			return ! $t['days'] || in_array( $d, $t['days'], true );
+		};
 		if ( '' === $t['from'] || '' === $t['to'] ) {
-			return true;
+			return $on( $day );
 		}
-		return $t['from'] <= $t['to'] ? ( $clock >= $t['from'] && $clock < $t['to'] ) : ( $clock >= $t['from'] || $clock < $t['to'] );
+		if ( $t['from'] <= $t['to'] ) {
+			return $on( $day ) && $clock >= $t['from'] && $clock < $t['to'];
+		}
+		// Past midnight: before "to" belongs to the evening before.
+		if ( $clock >= $t['from'] ) {
+			return $on( $day );
+		}
+		return $clock < $t['to'] && $on( ( $day + 6 ) % 7 );
 	}
 
 	/**
@@ -230,57 +234,95 @@ class Availability {
 		return sprintf( label( 'available_times' ), implode( ', ', $parts ) );
 	}
 
+	/** Option holding the map (autoloaded; small: restricted items only). */
+	const MAP = 'sidrest_availability_map';
+
 	/**
-	 * For each item, the rules of the places it appears: item id => [ [ section rule, [ menu rules ] ], … ].
+	 * The map for this request.
+	 *
+	 * @var array|null
+	 */
+	protected static $map = null;
+
+	/**
+	 * Items with serving times, and the rules of the places they appear:
+	 * item id => [ [ section rule, [ menu rules ] ], … ]. Items that appear
+	 * anywhere without times are always served and left out, so a site
+	 * without serving times stores an empty map and reads nothing else.
 	 *
 	 * @return array
 	 */
 	protected static function map() {
-		$cached = wp_cache_get( 'availability_map', 'sidrest' );
-		if ( is_array( $cached ) ) {
-			return $cached;
+		if ( null !== self::$map ) {
+			return self::$map;
 		}
-		$sections = get_posts(
-			array(
-				'post_type'      => Post_Types::SECTION,
-				'post_status'    => 'publish',
-				'posts_per_page' => 500,
-				'fields'         => 'ids',
-				'no_found_rows'  => true,
-			)
-		);
-		$menus    = get_posts(
-			array(
-				'post_type'      => Post_Types::MENU,
-				'post_status'    => 'publish',
-				'posts_per_page' => 200,
-				'fields'         => 'ids',
-				'no_found_rows'  => true,
-			)
-		);
-		update_meta_cache( 'post', array_merge( $sections, $menus ) );
-		$menu_rules = array();
-		foreach ( $menus as $menu_id ) {
-			foreach ( array_map( 'intval', (array) get_post_meta( $menu_id, '_sidrest_sections', true ) ) as $sid ) {
-				$menu_rules[ $sid ][] = self::times( $menu_id );
-			}
+		$stored = get_option( self::MAP, null );
+		if ( is_array( $stored ) ) {
+			self::$map = $stored;
+			return self::$map;
 		}
-		$map = array();
-		foreach ( $sections as $sid ) {
-			$rule = self::times( $sid );
-			foreach ( array_map( 'intval', (array) get_post_meta( $sid, '_sidrest_items', true ) ) as $item_id ) {
-				$map[ $item_id ][] = array( $rule, $menu_rules[ $sid ] ?? array() );
-			}
-		}
-		wp_cache_set( 'availability_map', $map, 'sidrest', HOUR_IN_SECONDS );
-		return $map;
+		self::$map = self::build_map();
+		update_option( self::MAP, self::$map, true );
+		return self::$map;
 	}
 
 	/**
-	 * Drop the cached map (a menu or section changed).
+	 * Work the map out from the published menus and sections.
+	 *
+	 * @return array
+	 */
+	protected static function build_map() {
+		$query    = array(
+			'post_status'    => 'publish',
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+			'no_found_rows'  => true,
+		);
+		$sections = get_posts( array( 'post_type' => Post_Types::SECTION ) + $query );
+		$menus    = get_posts( array( 'post_type' => Post_Types::MENU ) + $query );
+		update_meta_cache( 'post', array_merge( $sections, $menus ) );
+		$menu_rules = array();
+		foreach ( $menus as $menu_id ) {
+			$rule = self::times( $menu_id );
+			foreach ( array_map( 'intval', (array) get_post_meta( $menu_id, '_sidrest_sections', true ) ) as $sid ) {
+				$menu_rules[ $sid ][] = $rule;
+			}
+		}
+		$places = array();
+		$always = array();
+		foreach ( $sections as $sid ) {
+			$rule  = self::times( $sid );
+			$in    = $menu_rules[ $sid ] ?? array();
+			$free  = ! $rule && ( ! $in || in_array( null, $in, true ) ); // Served whenever the restaurant is.
+			foreach ( array_map( 'intval', (array) get_post_meta( $sid, '_sidrest_items', true ) ) as $item_id ) {
+				if ( $free ) {
+					$always[ $item_id ] = true;
+				} else {
+					$places[ $item_id ][] = array( $rule, $in );
+				}
+			}
+		}
+		return array_diff_key( $places, $always );
+	}
+
+	/**
+	 * Drop the stored map (a menu or section changed).
 	 */
 	public static function forget() {
-		wp_cache_delete( 'availability_map', 'sidrest' );
+		self::$map = null;
+		delete_option( self::MAP );
+	}
+
+	/**
+	 * A menu or section was deleted.
+	 *
+	 * @param int           $post_id Post ID.
+	 * @param \WP_Post|null $post    Post.
+	 */
+	public function forget_deleted( $post_id, $post = null ) {
+		if ( $post instanceof \WP_Post && in_array( $post->post_type, array( Post_Types::SECTION, Post_Types::MENU ), true ) ) {
+			self::forget();
+		}
 	}
 
 	/**
@@ -325,7 +367,7 @@ class Availability {
 		}
 		$memo[ $item_id ] = self::served_at( $item_id, time() );
 		if ( ! $memo[ $item_id ] && Hours::configured() && \SidcraftRestaurant\setting( 'order_ahead', 1 ) ) {
-			foreach ( Schedule::slots() as $slot ) {
+			foreach ( Schedule::slots( null, false ) as $slot ) {
 				if ( self::served_at( $item_id, $slot[0] ) ) {
 					$memo[ $item_id ] = true;
 					break;
@@ -356,7 +398,7 @@ class Availability {
 		if ( ! $item ) {
 			return $ok;
 		}
-		return ! self::sold_out( $item->get_id() ) && self::served_soon( $item->get_id() );
+		return ! self::sold_out( $item->get_id() ) && self::served_soon( $item->get_id() ) && Deals::available( $item->get_id() );
 	}
 
 	/**

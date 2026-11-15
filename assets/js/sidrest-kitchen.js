@@ -308,16 +308,39 @@
 			return 'done' !== x.stage;
 		} );
 		render();
-		api( 'orders/' + o.id, 'POST', { stage: stage } ).catch( load );
+		api( 'orders/' + o.id, 'POST', { stage: stage } ).then( function () {
+			load( true );
+		}, function () {
+			load( true );
+		} );
 	}
 
-	function load() {
+	var rev = '';
+	var fullAt = 0;
+	var busy = false;
+	var again = false;
+
+	function load( force ) {
 		clearTimeout( timer );
-		return api( 'orders' )
+		if ( busy ) {
+			again = again || !! force; // Load again (in full) once this answer is in.
+			return;
+		}
+		busy = true;
+		// Ask for everything at least every 2 minutes (late and "later" flags move with the clock).
+		var since = ! force && rev && Date.now() - fullAt < 120000 ? '?rev=' + encodeURIComponent( rev ) : '';
+		return api( 'orders' + since )
 			.then( function ( data ) {
 				ui.notice.hidden = true;
+				ui.status.textContent = data.paused ? t.paused : ( data.open ? t.openNow : t.closed );
+				ui.status.className = 'sk-status ' + ( data.paused || ! data.open ? 'is-off' : 'is-on' );
+				if ( data.unchanged ) {
+					return;
+				}
+				rev = data.rev || '';
+				fullAt = Date.now();
 				var fresh = [];
-				orders = data.orders;
+				orders = data.orders || [];
 				if ( known ) {
 					orders.forEach( function ( o ) {
 						if ( ! known[ o.id ] ) {
@@ -329,8 +352,6 @@
 				orders.forEach( function ( o ) {
 					known[ o.id ] = true;
 				} );
-				ui.status.textContent = data.paused ? t.paused : ( data.open ? t.openNow : t.closed );
-				ui.status.className = 'sk-status ' + ( data.paused || ! data.open ? 'is-off' : 'is-on' );
 				render();
 				if ( fresh.length ) {
 					beep();
@@ -345,9 +366,14 @@
 				ui.notice.hidden = false;
 			} )
 			.finally( function () {
-				if ( ! document.hidden ) {
-					timer = setTimeout( load, 8000 );
+				busy = false;
+				if ( again ) {
+					again = false;
+					load( true );
+					return;
 				}
+				// Keep listening in a background tab (the sound still plays), just less often.
+				timer = setTimeout( load, document.hidden ? 30000 : 8000 );
 			} );
 	}
 
@@ -401,13 +427,13 @@
 	/* -------------------------------------------------------------- Boot */
 
 	layout();
+	load( true );
 	setInterval( function () {
 		ui.clock.textContent = new Date().toLocaleTimeString( [], { hour: '2-digit', minute: '2-digit' } );
 	}, 1000 );
-	load();
 	document.addEventListener( 'visibilitychange', function () {
 		if ( ! document.hidden ) {
-			load();
+			load( true );
 		}
 	} );
 	window.addEventListener( 'focus', function () {

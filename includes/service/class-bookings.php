@@ -513,7 +513,35 @@ class Bookings {
 			$body .= __( 'Need to change or cancel? Use this link:', 'sidcraft-restaurant-for-sidcraft-commerce' ) . "\n" . self::link( $booking ) . "\n\n";
 		}
 		$body .= $store . "\n" . home_url( '/' );
-		wp_mail( $booking['email'], $subject, $body, array( 'From: ' . str_replace( array( "\r", "\n" ), '', $store ) . ' <' . get_option( 'admin_email' ) . '>' ) );
+		self::mail( $booking['email'], $subject, $body );
+	}
+
+	/**
+	 * Where booking emails for staff go: the store's notification address.
+	 *
+	 * @return string '' when none is valid.
+	 */
+	protected static function staff_email() {
+		$to = function_exists( '\SidcraftCommerce\setting' ) ? (string) \SidcraftCommerce\setting( 'admin_email', get_option( 'admin_email' ) ) : (string) get_option( 'admin_email' );
+		return is_email( $to ) ? $to : '';
+	}
+
+	/**
+	 * Send an email in the restaurant's name. The sending address stays the
+	 * site's own (setting it to the admin's address fails SPF/DMARC checks).
+	 *
+	 * @param string   $to      Recipient.
+	 * @param string   $subject Subject.
+	 * @param string   $body    Plain-text body.
+	 * @param string[] $headers Extra headers.
+	 */
+	protected static function mail( $to, $subject, $body, array $headers = array() ) {
+		$name = static function () {
+			return self::store();
+		};
+		add_filter( 'wp_mail_from_name', $name );
+		wp_mail( $to, $subject, $body, $headers );
+		remove_filter( 'wp_mail_from_name', $name );
 	}
 
 	/**
@@ -522,8 +550,8 @@ class Bookings {
 	 * @param array $booking Booking.
 	 */
 	public static function email_restaurant( array $booking ) {
-		$to = function_exists( '\SidcraftCommerce\setting' ) ? (string) \SidcraftCommerce\setting( 'admin_email', get_option( 'admin_email' ) ) : (string) get_option( 'admin_email' );
-		if ( ! is_email( $to ) ) {
+		$to = self::staff_email();
+		if ( ! $to ) {
 			return;
 		}
 		/* translators: 1: party, 2: when, 3: name. */
@@ -542,7 +570,7 @@ class Bookings {
 				'is_string'
 			)
 		);
-		wp_mail( $to, $subject, $body, is_email( $booking['email'] ) ? array( 'Reply-To: ' . $booking['email'] ) : array() );
+		self::mail( $to, $subject, $body, is_email( $booking['email'] ) ? array( 'Reply-To: ' . $booking['email'] ) : array() );
 	}
 
 	/**
@@ -613,9 +641,12 @@ class Bookings {
 	 * @param array $booking Booking.
 	 */
 	protected static function email_restaurant_cancel( array $booking ) {
-		$to = (string) get_option( 'admin_email' );
+		$to = self::staff_email();
+		if ( ! $to ) {
+			return;
+		}
 		/* translators: 1: name, 2: when. */
-		wp_mail( $to, sprintf( __( 'Booking cancelled: %1$s, %2$s', 'sidcraft-restaurant-for-sidcraft-commerce' ), $booking['name'], Hours::day_time( $booking['time'] ) ), admin_url( 'post.php?action=edit&post=' . $booking['id'] ) );
+		self::mail( $to, sprintf( __( 'Booking cancelled: %1$s, %2$s', 'sidcraft-restaurant-for-sidcraft-commerce' ), $booking['name'], Hours::day_time( $booking['time'] ) ), admin_url( 'post.php?action=edit&post=' . $booking['id'] ) );
 	}
 
 	/**

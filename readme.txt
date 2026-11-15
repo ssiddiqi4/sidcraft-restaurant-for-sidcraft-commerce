@@ -5,7 +5,7 @@ Tags: restaurant, menu, food ordering, table reservations, delivery
 Requires at least: 6.3
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -225,6 +225,18 @@ Settings are removed when you delete the plugin. To remove menus, sections, item
 
 == Changelog ==
 
+= 1.2.1 =
+* Performance: the kitchen screen asks “anything new?” and gets a tiny answer when nothing changed, instead of reloading every order every 8 seconds. Full loads read the orders, products and dishes in batches (20 orders: 38 database queries down to 21).
+* Performance: serving times are stored once (only for dishes that have them), so menus, item pages and checkout no longer run 3 extra queries per page; menus no longer look up booked slots.
+* Fixed: the kitchen screen stopped checking for orders while its browser tab was in the background, so new orders made no sound. It now keeps checking every 30 seconds there.
+* Fixed: delivery distance lookups with OpenStreetMap failed for addresses containing “&”, “#” or “+”.
+* Fixed: when the address service didn’t answer, the address was remembered as “not found” for a day.
+* Fixed: a meal deal could be ordered without a side when every side in its group was sold out.
+* Fixed: serving times past midnight (for example Monday 22:00–02:00) also counted as open early on the listed day itself.
+* Fixed: table QR codes stopped working if the site’s security keys were changed. They now use their own key — reprint your table cards once after updating from 1.2.0.
+* Fixed: booking emails were sent “from” the admin address, which many mail servers treat as spam; they now come from your site in your restaurant’s name. Cancellations go to the same address as new bookings.
+* Code: shared helpers for checkout-only fields and order amounts.
+
 = 1.2.0 =
 * New: opening hours with several times per day, holidays, closed days and “Pause online ordering”; order for later while closed, or stop ordering.
 * New: order-ahead time slots at checkout with a limit on orders per slot. Couriers are booked for the chosen time.
@@ -241,25 +253,12 @@ Settings are removed when you delete the plugin. To remove menus, sections, item
 * Templates changed: item.php, menu.php and single-item.php. New: booking.php. If you override them in your theme, compare with the new versions.
 * Readme: documents pickup, delivery, couriers and the new features.
 
-= 1.1.3 =
-* Performance: a menu loads its sections, all their items (with meta and categories) and the products of orderable items in a few batched queries. A 200-item menu went from 746 database queries to 49 and renders in about a third of the time. The Menu Items List unit and widget (latest, category, section, badge and promo sources) batch their items the same way.
-* Performance: labels, badge names and dietary icons are translated once per request instead of once per item, and templates look for a theme override once per request.
-* Performance: block registration builds attributes without loading the menu, section, item and category pickers, and the block editor's settings are built only in the block editor. Pages without a menu no longer read those lists on every request.
-* Performance: the rewrite-flush flag and the settings option are stored autoloaded, so they no longer cost a database query on every page.
-
-= 1.1.2 =
-* Performance: menu categories for the Menu Items List unit and widget are loaded once per request and shared with Sidcraft Builder Pro, so editor screens no longer query them twice.
-
-= 1.1.1 =
-* Fixed: "Translation loading triggered too early" notice (WordPress 6.7+). The Out for delivery order status label is now translated on init.
-
-= 0.1.1 =
-* Fixed errors and warnings reported by WordPress Plugin Check.
-
-= 0.1.0 =
-* First release: menus, sections and items; six styles; search, filters and sorting; sections sidebar; dietary icons and badges; multiple prices; promotions; custom fields; suppliers with maps; related items; online ordering through Sidcraft Commerce; Sidcraft Page Builder Units, blocks, patterns, shortcodes and a widget; QR codes; menu structured data; styling and labelling settings; WPML and Polylang support.
+Earlier versions: see changelog.txt in the plugin folder.
 
 == Upgrade Notice ==
+
+= 1.2.1 =
+Faster kitchen screen and fixes for delivery distances, meal deals and booking emails. If you printed table QR cards with 1.2.0, print them again.
 
 = 1.2.0 =
 Opening hours, time slots, a kitchen screen, table ordering, tips, reservations, meal deals, allergens and delivery zones. Theme overrides of item.php, menu.php and single-item.php should be compared with the new templates.

@@ -136,11 +136,15 @@ class Zones {
 		 * Short-circuit geocoding (tests, another service): return [ lat, lng ], or false for "not found".
 		 *
 		 * @param array|false|null $point   Null to let the plugin look it up.
+		 *                                  (Its own lookups return null when the service can't be reached.)
 		 * @param string           $address Address.
 		 */
 		$point = apply_filters( 'sidrest_geocode', null, $address );
 		if ( null === $point ) {
 			$point = 'google' === Platforms::get( 'geocoder' ) && '' !== (string) Platforms::get( 'google_key' ) ? self::google( $address ) : self::osm( $address );
+		}
+		if ( null === $point ) {
+			return null; // The service didn't answer: try again next time.
 		}
 		$point = is_array( $point ) && 2 === count( $point ) ? array( (float) $point[0], (float) $point[1] ) : array();
 		// "Not found" is remembered for a day only (the address may be fixed).
@@ -152,7 +156,7 @@ class Zones {
 	 * OpenStreetMap Nominatim.
 	 *
 	 * @param string $address Address.
-	 * @return float[]|false
+	 * @return float[]|false|null False: not found. Null: no answer.
 	 */
 	protected static function osm( $address ) {
 		$response = wp_remote_get(
@@ -160,7 +164,7 @@ class Zones {
 				array(
 					'format' => 'jsonv2',
 					'limit'  => 1,
-					'q'      => $address,
+					'q'      => rawurlencode( $address ),
 				),
 				'https://nominatim.openstreetmap.org/search'
 			),
@@ -169,6 +173,9 @@ class Zones {
 				'user-agent' => 'SidcraftRestaurant/' . SIDREST_VERSION . ' (' . home_url( '/' ) . ')',
 			)
 		);
+		if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+			return null;
+		}
 		$data = json_decode( (string) wp_remote_retrieve_body( $response ), true );
 		return isset( $data[0]['lat'], $data[0]['lon'] ) ? array( $data[0]['lat'], $data[0]['lon'] ) : false;
 	}
@@ -177,7 +184,7 @@ class Zones {
 	 * Google Geocoding API.
 	 *
 	 * @param string $address Address.
-	 * @return float[]|false
+	 * @return float[]|false|null False: not found. Null: no answer.
 	 */
 	protected static function google( $address ) {
 		$response = wp_remote_get(
@@ -190,8 +197,14 @@ class Zones {
 			),
 			array( 'timeout' => 8 )
 		);
+		if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+			return null;
+		}
 		$data = json_decode( (string) wp_remote_retrieve_body( $response ), true );
-		$loc  = $data['results'][0]['geometry']['location'] ?? null;
+		if ( isset( $data['status'] ) && ! in_array( $data['status'], array( 'OK', 'ZERO_RESULTS' ), true ) ) {
+			return null; // Key, quota or billing problem: not the address's fault.
+		}
+		$loc = $data['results'][0]['geometry']['location'] ?? null;
 		return is_array( $loc ) ? array( $loc['lat'], $loc['lng'] ) : false;
 	}
 
@@ -231,8 +244,8 @@ class Zones {
 				unset( $choices[ $key ] ); // Too far for delivery.
 				continue;
 			}
-			$fee             = $zone ? $zone['fee'] : self::zones()[0]['fee'];
-			$free            = '' !== (string) Platforms::platform( $row[2] )['free_over'] ? (float) Platforms::platform( $row[2] )['free_over'] : 0.0;
+			$fee             = $zone ? $zone['fee'] : min( wp_list_pluck( self::zones(), 'fee' ) );
+			$free            = (float) ( Platforms::platform( $row[2] )['free_over'] ?? 0 );
 			$fee             = $free > 0 && max( 0.0, $cart->get_goods_subtotal() - $cart->get_discount() ) >= $free ? 0.0 : $fee;
 			$choices[ $key ] = array(
 				sprintf(

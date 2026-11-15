@@ -103,18 +103,19 @@ class Schedule {
 	/**
 	 * Times that can still be chosen: "Y-m-d H:i" => [ Unix time, label ].
 	 *
-	 * @param int|null $now Unix time.
+	 * @param int|null $now  Unix time.
+	 * @param bool     $full Leave out slots that are fully booked (one more query).
 	 * @return array
 	 */
-	public static function slots( $now = null ) {
+	public static function slots( $now = null, $full = true ) {
 		$now  = null === $now ? time() : (int) $now;
 		$step = max( 5, min( 120, (int) setting( 'slot_minutes', 15 ) ) );
-		$cap  = absint( setting( 'slot_capacity', 0 ) );
+		$cap  = $full ? absint( setting( 'slot_capacity', 0 ) ) : 0;
 		$days = max( 0, min( 14, (int) setting( 'order_days', 0 ) ) );
 		$tz   = wp_timezone();
 		$last = ( new \DateTimeImmutable( '@' . $now ) )->setTimezone( $tz )->setTime( 23, 59, 59 )->modify( '+' . $days . ' day' )->getTimestamp();
 		$from = $now + self::prep_minutes() * MINUTE_IN_SECONDS;
-		$full = $cap ? self::booked() : array();
+		$taken = $cap ? self::booked() : array();
 		$out  = array();
 		foreach ( Hours::intervals( $now, $days + 1 ) as $range ) {
 			if ( $range[1] <= $from || $range[0] > $last ) {
@@ -126,7 +127,7 @@ class Schedule {
 				$t += (int) ceil( ( $from - $t ) / ( $step * 60 ) ) * $step * 60;
 			}
 			for ( ; $t < $range[1] && $t <= $last; $t += $step * 60 ) {
-				if ( $cap && ( $full[ $t ] ?? 0 ) >= $cap ) {
+				if ( $cap && ( $taken[ $t ] ?? 0 ) >= $cap ) {
 					continue;
 				}
 				$key         = wp_date( 'Y-m-d H:i', $t );
@@ -187,7 +188,7 @@ class Schedule {
 	 */
 	public function checkout_fields( $fields ) {
 		$label = __( 'When would you like it?', 'sidcraft-restaurant-for-sidcraft-commerce' );
-		if ( ( is_admin() && ! wp_doing_ajax() ) || wp_doing_cron() || ! did_action( 'init' ) ) {
+		if ( ! Delivery::shopper_context() ) {
 			// Orders, emails and the admin: show the saved value ("asap" or the time).
 			$fields[ self::FIELD ] = array( $label, 'select', false, 'off', 'full', array( 'asap' => __( 'As soon as possible', 'sidcraft-restaurant-for-sidcraft-commerce' ) ) );
 			return $fields;

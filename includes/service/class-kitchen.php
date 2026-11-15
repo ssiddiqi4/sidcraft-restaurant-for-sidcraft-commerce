@@ -44,6 +44,30 @@ class Kitchen {
 	public function hooks() {
 		add_action( 'sidcraft_commerce_order_created', array( $this, 'order_created' ), 5 );
 		add_action( 'rest_api_init', array( $this, 'routes' ) );
+		add_action( 'transition_post_status', array( $this, 'status_changed' ), 10, 3 );
+	}
+
+	/** Option bumped whenever the board would look different. */
+	const REV = 'sidrest_kitchen_rev';
+
+	/**
+	 * The board changed: the next poll gets the orders again.
+	 */
+	public static function bump() {
+		update_option( self::REV, (string) wp_rand( 1, PHP_INT_MAX ), false );
+	}
+
+	/**
+	 * A restaurant order was paid, cancelled, completed…
+	 *
+	 * @param string   $new  New status.
+	 * @param string   $old  Old status.
+	 * @param \WP_Post $post Post.
+	 */
+	public function status_changed( $new, $old, $post ) {
+		if ( $new !== $old && Commerce_Types::ORDER === $post->post_type && get_post_meta( $post->ID, '_sidrest_kitchen', true ) ) {
+			self::bump();
+		}
 	}
 
 	/**
@@ -73,6 +97,7 @@ class Kitchen {
 		}
 		update_post_meta( $order->get_id(), '_sidrest_kitchen', 1 );
 		update_post_meta( $order->get_id(), '_sidrest_stage', 'new' );
+		self::bump();
 	}
 
 	/**
@@ -168,8 +193,37 @@ class Kitchen {
 				),
 			)
 		);
-		update_meta_cache( 'post', $ids );
-		return array_values( array_filter( array_map( array( Order::class, 'get' ), $ids ) ) );
+		_prime_post_caches( $ids, false, true );
+		$orders = array_values( array_filter( array_map( array( Order::class, 'get' ), $ids ) ) );
+		self::prime_items( $orders );
+		return $orders;
+	}
+
+	/**
+	 * Load the products and menu items of these orders in a few queries.
+	 *
+	 * @param Order[] $orders Orders.
+	 */
+	protected static function prime_items( array $orders ) {
+		$products = array();
+		foreach ( $orders as $order ) {
+			foreach ( $order->get_items() as $line ) {
+				$products[] = (int) $line['product_id'];
+			}
+		}
+		$products = array_values( array_unique( array_filter( $products ) ) );
+		if ( ! $products ) {
+			return;
+		}
+		_prime_post_caches( $products, false, true );
+		$items = array();
+		foreach ( $products as $product_id ) {
+			$items[] = (int) get_post_meta( $product_id, Ordering::LINK, true );
+		}
+		$items = array_values( array_unique( array_filter( $items ) ) );
+		if ( $items ) {
+			_prime_post_caches( $items, false, true );
+		}
 	}
 
 	/**
@@ -217,6 +271,7 @@ class Kitchen {
 		$when  = (int) get_post_meta( $order->get_id(), '_sidrest_when', true );
 		$ready = Schedule::ready_by( $order );
 		$ful   = self::fulfilment( $order );
+		$tip   = (float) get_post_meta( $order->get_id(), '_sidrest_tip', true );
 		return array(
 			'id'       => $order->get_id(),
 			'number'   => '#' . $order->get_id(),
@@ -233,8 +288,8 @@ class Kitchen {
 			'phone'    => (string) ( $billing['phone'] ?? '' ),
 			'notes'    => (string) get_post_meta( $order->get_id(), '_sidccofo_notes', true ),
 			'items'    => $items,
-			'total'    => html_entity_decode( wp_strip_all_tags( \SidcraftCommerce\format_in( $order->get_total(), $order->get_currency() ) ), ENT_QUOTES, 'UTF-8' ),
-			'tip'      => (float) get_post_meta( $order->get_id(), '_sidrest_tip', true ) > 0 ? html_entity_decode( wp_strip_all_tags( \SidcraftCommerce\format_in( (float) get_post_meta( $order->get_id(), '_sidrest_tip', true ), $order->get_currency() ) ), ENT_QUOTES, 'UTF-8' ) : '',
+			'total'    => Delivery::plain_in( $order->get_total(), $order->get_currency() ),
+			'tip'      => $tip > 0 ? Delivery::plain_in( $tip, $order->get_currency() ) : '',
 			'edit'     => get_edit_post_link( $order->get_id(), 'raw' ),
 		);
 	}
@@ -292,22 +347,34 @@ class Kitchen {
 		 * @param string $old   Old stage.
 		 */
 		do_action( 'sidrest_kitchen_stage', $order, $stage, $old );
+		self::bump();
 	}
 
 	/**
-	 * GET orders.
+	 * GET orders (?rev=… answers "unchanged" when nothing moved).
 	 *
+	 * @param \WP_REST_Request $request Request.
 	 * @return \WP_REST_Response
 	 */
-	public function rest_orders() {
-		$response = rest_ensure_response(
-			array(
-				'orders' => array_map( array( __CLASS__, 'payload' ), self::live_orders() ),
-				'now'    => time(),
-				'open'   => Hours::taking_orders_now(),
-				'paused' => (bool) setting( 'ordering_paused', 0 ),
-			)
+	public function rest_orders( \WP_REST_Request $request ) {
+		$rev = (string) get_option( self::REV, '' );
+		if ( '' === $rev ) {
+			self::bump();
+			$rev = (string) get_option( self::REV, '' );
+		}
+		$data = array(
+			'rev'    => $rev,
+			'now'    => time(),
+			'open'   => Hours::taking_orders_now(),
+			'paused' => (bool) setting( 'ordering_paused', 0 ),
 		);
+		// Nothing changed since the screen's last copy: no order queries.
+		if ( $rev === (string) $request->get_param( 'rev' ) ) {
+			$data['unchanged'] = true;
+		} else {
+			$data['orders'] = array_map( array( __CLASS__, 'payload' ), self::live_orders() );
+		}
+		$response = rest_ensure_response( $data );
 		$response->header( 'Cache-Control', 'no-store' );
 		return $response;
 	}

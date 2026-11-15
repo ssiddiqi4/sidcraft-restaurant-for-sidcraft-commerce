@@ -203,7 +203,7 @@ class Tips {
 	 */
 	public function checkout_fields( $fields ) {
 		$label = __( 'Add a tip', 'sidcraft-restaurant-for-sidcraft-commerce' );
-		if ( ( is_admin() && ! wp_doing_ajax() ) || wp_doing_cron() || ! did_action( 'init' ) ) {
+		if ( ! Delivery::shopper_context() ) {
 			return $fields; // Orders show the tip as a totals line instead.
 		}
 		$cart = Cart::instance();

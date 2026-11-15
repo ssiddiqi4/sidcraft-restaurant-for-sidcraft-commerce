@@ -104,6 +104,39 @@ class Deals {
 	}
 
 	/**
+	 * Items of a group that can be chosen now (published, not sold out).
+	 *
+	 * @param int[] $ids Items.
+	 * @return int[]
+	 */
+	public static function on_offer( array $ids ) {
+		_prime_post_caches( $ids, false, true );
+		return array_values(
+			array_filter(
+				$ids,
+				static function ( $id ) {
+					return 'publish' === get_post_status( $id ) && ! Availability::sold_out( $id );
+				}
+			)
+		);
+	}
+
+	/**
+	 * Can the deal be put together now: something left in every group?
+	 *
+	 * @param int $item_id Item.
+	 * @return bool
+	 */
+	public static function available( $item_id ) {
+		foreach ( self::groups( $item_id ) as $group ) {
+			if ( ! self::on_offer( $group['items'] ) ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * A deal's groups become required choices.
 	 *
 	 * @param array[] $groups  Option groups.
@@ -117,10 +150,7 @@ class Deals {
 		}
 		foreach ( self::groups( $item->get_id() ) as $i => $group ) {
 			$choices = array();
-			foreach ( $group['items'] as $id ) {
-				if ( 'publish' !== get_post_status( $id ) || Availability::sold_out( $id ) ) {
-					continue;
-				}
+			foreach ( self::on_offer( $group['items'] ) as $id ) {
 				$choices[] = array(
 					'id'    => 'i' . $id,
 					'label' => get_the_title( $id ),
@@ -128,7 +158,7 @@ class Deals {
 				);
 			}
 			if ( ! $choices ) {
-				continue;
+				continue; // The deal itself can't be bought then (see available()).
 			}
 			$groups[] = array(
 				'id'       => 'sidrest-deal-' . $i,

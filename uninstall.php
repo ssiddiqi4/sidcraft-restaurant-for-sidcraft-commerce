@@ -11,6 +11,9 @@ defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 delete_option( 'sidrest_settings' );
 delete_option( 'sidrest_flush_rewrites' );
 delete_option( 'sidrest_courier_status_key' );
+delete_option( 'sidrest_availability_map' );
+delete_option( 'sidrest_kitchen_rev' );
+delete_option( 'sidrest_table_key' );
 foreach ( array( 'sidrest_menu', 'sidrest_section', 'sidrest_item' ) as $sidrest_type ) {
 	delete_transient( 'sidrest_opts_' . $sidrest_type );
 }

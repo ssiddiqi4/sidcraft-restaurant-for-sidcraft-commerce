@@ -381,6 +381,27 @@ class Delivery {
 	}
 
 	/**
+	 * An amount in an order's currency as plain text.
+	 *
+	 * @param float  $amount   Amount.
+	 * @param string $currency Currency code.
+	 * @return string
+	 */
+	public static function plain_in( $amount, $currency ) {
+		return html_entity_decode( wp_strip_all_tags( \SidcraftCommerce\format_in( (float) $amount, $currency ) ), ENT_QUOTES, 'UTF-8' );
+	}
+
+	/**
+	 * Are checkout fields being built for a shopper's checkout (not an
+	 * admin screen, cron job or early request, where the cart isn't there)?
+	 *
+	 * @return bool
+	 */
+	public static function shopper_context() {
+		return did_action( 'init' ) && ! wp_doing_cron() && ( ! is_admin() || wp_doing_ajax() );
+	}
+
+	/**
 	 * Postcode inside the delivery area ("02139, 0214*, SW1*"; empty = everywhere).
 	 *
 	 * @param string $postcode Postcode.
