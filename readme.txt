@@ -5,7 +5,7 @@ Tags: restaurant, menu, food ordering, table reservations, delivery
 Requires at least: 6.3
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -225,6 +225,9 @@ Settings are removed when you delete the plugin. To remove menus, sections, item
 
 == Changelog ==
 
+= 1.2.2 =
+* Fixed: WordPress Plugin Check reports (translator note, nonce check where serving times are saved, template variable prefix). No changes in behaviour.
+
 = 1.2.1 =
 * Performance: the kitchen screen asks “anything new?” and gets a tiny answer when nothing changed, instead of reloading every order every 8 seconds. Full loads read the orders, products and dishes in batches (20 orders: 38 database queries down to 21).
 * Performance: serving times are stored once (only for dishes that have them), so menus, item pages and checkout no longer run 3 extra queries per page; menus no longer look up booked slots.
@@ -235,7 +238,6 @@ Settings are removed when you delete the plugin. To remove menus, sections, item
 * Fixed: serving times past midnight (for example Monday 22:00–02:00) also counted as open early on the listed day itself.
 * Fixed: table QR codes stopped working if the site’s security keys were changed. They now use their own key — reprint your table cards once after updating from 1.2.0.
 * Fixed: booking emails were sent “from” the admin address, which many mail servers treat as spam; they now come from your site in your restaurant’s name. Cancellations go to the same address as new bookings.
-* Code: shared helpers for checkout-only fields and order amounts.
 
 = 1.2.0 =
 * New: opening hours with several times per day, holidays, closed days and “Pause online ordering”; order for later while closed, or stop ordering.
@@ -250,12 +252,14 @@ Settings are removed when you delete the plugin. To remove menus, sections, item
 * New: the 14 EU/UK allergens, an allergen filter and allergens on kitchen tickets.
 * New: delivery zones by distance, with a fee and minimum order per zone.
 * New: Table Booking and Opening Hours blocks and Units, and the `[sidrest_booking]` shortcode.
-* Templates changed: item.php, menu.php and single-item.php. New: booking.php. If you override them in your theme, compare with the new versions.
-* Readme: documents pickup, delivery, couriers and the new features.
+* Templates changed: item.php, menu.php, single-item.php; new booking.php.
 
 Earlier versions: see changelog.txt in the plugin folder.
 
 == Upgrade Notice ==
+
+= 1.2.2 =
+Plugin Check fixes. Template changed: menu.php (a variable renamed); compare theme overrides of it.
 
 = 1.2.1 =
 Faster kitchen screen and fixes for delivery distances, meal deals and booking emails. If you printed table QR cards with 1.2.0, print them again.

@@ -1,5 +1,8 @@
 Sidcraft Restaurant for Sidcraft Commerce — full changelog
 
+= 1.2.2 =
+* Fixed: WordPress Plugin Check reports (translator note, nonce check where serving times are saved, template variable prefix). No changes in behaviour.
+
 = 1.2.1 =
 * Performance: the kitchen screen asks “anything new?” and gets a tiny answer when nothing changed, instead of reloading every order every 8 seconds. Full loads read the orders, products and dishes in batches (20 orders: 38 database queries down to 21).
 * Performance: serving times are stored once (only for dishes that have them), so menus, item pages and checkout no longer run 3 extra queries per page; menus no longer look up booked slots.

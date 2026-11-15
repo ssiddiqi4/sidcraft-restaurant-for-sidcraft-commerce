@@ -197,6 +197,7 @@ function default_labels() {
 		'avoid'           => __( 'Hide dishes with', 'sidcraft-restaurant-for-sidcraft-commerce' ),
 		'hours'           => __( 'Opening hours', 'sidcraft-restaurant-for-sidcraft-commerce' ),
 		'book_table'      => __( 'Book a table', 'sidcraft-restaurant-for-sidcraft-commerce' ),
+		/* translators: %s: meal deal group, e.g. "side". */
 		'deal_choose'     => __( 'Choose your %s', 'sidcraft-restaurant-for-sidcraft-commerce' ),
 	);
 }

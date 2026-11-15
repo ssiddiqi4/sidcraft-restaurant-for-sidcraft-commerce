@@ -6,7 +6,7 @@
  * Override by copying to: yourtheme/sidcraft-restaurant/menu.php
  *
  * @package SidcraftRestaurant
- * @version 1.2.0
+ * @version 1.2.2
  *
  * @var \SidcraftRestaurant\Menu|null $menu       Menu (null for a single section).
  * @var array[]                       $sections   Each: section (Section), items (Item[]).
@@ -30,8 +30,8 @@ if ( ! $sections ) {
 
 $sidrest_style   = $args['style'];
 $sidrest_sidebar = $args['sidebar'] && count( $sections ) > 1;
-$allergens       = isset( $allergens ) ? (array) $allergens : array();
-$sidrest_toolbar = $args['toolbar'] && ( setting( 'enable_search', 1 ) || $categories || ( setting( 'enable_dietary', 1 ) && $diets ) || setting( 'enable_sort', 1 ) || $allergens );
+$sidrest_allergens = isset( $allergens ) ? (array) $allergens : array();
+$sidrest_toolbar = $args['toolbar'] && ( setting( 'enable_search', 1 ) || $categories || ( setting( 'enable_dietary', 1 ) && $diets ) || setting( 'enable_sort', 1 ) || $sidrest_allergens );
 $sidrest_heading = $args['heading'];
 $sidrest_item_h  = 'h2' === $sidrest_heading ? 'h3' : 'h4';
 $sidrest_classes = array( 'sidrest', 'sidrest--style-' . $sidrest_style );
@@ -107,10 +107,10 @@ $sidrest_order = 0;
 					<?php endforeach; ?>
 				</div>
 			<?php endif; ?>
-			<?php if ( $allergens ) : ?>
+			<?php if ( $sidrest_allergens ) : ?>
 				<div class="sidrest__chips sidrest__chips--allergens" role="group" aria-label="<?php echo esc_attr( label( 'avoid' ) ); ?>">
 					<span class="sidrest__chips-label"><?php echo esc_html( label( 'avoid' ) ); ?>:</span>
-					<?php foreach ( $allergens as $sidrest_slug => $sidrest_name ) : ?>
+					<?php foreach ( $sidrest_allergens as $sidrest_slug => $sidrest_name ) : ?>
 						<button type="button" class="sidrest-chip sidrest-chip--allergen" aria-pressed="false" data-sidrest-allergen="<?php echo esc_attr( $sidrest_slug ); ?>"><?php echo esc_html( $sidrest_name ); ?></button>
 					<?php endforeach; ?>
 				</div>

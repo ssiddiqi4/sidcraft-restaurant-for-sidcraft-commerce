@@ -48,6 +48,7 @@ class Pay_At_Table extends Gateway {
 	public function is_available() {
 		$ok = setting( 'pay_at_table', 1 ) && '' !== Dine_In::current() && 'table' === \SidcraftRestaurant\Delivery\Delivery::current_choice( \SidcraftRestaurant\Delivery\Delivery::choices() );
 		/** This filter is documented in Sidcraft Commerce's Gateway::is_available(). */
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Sidcraft Commerce's own gateway filter, applied as its gateways do.
 		return (bool) apply_filters( 'sidcraft_commerce_gateway_available', $ok, $this );
 	}
 

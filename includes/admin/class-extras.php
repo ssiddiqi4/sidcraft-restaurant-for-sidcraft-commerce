@@ -186,11 +186,10 @@ class Extras {
 	 * @param int $post_id Menu or section.
 	 */
 	public function save_times( $post_id ) {
-		if ( ! self::can_save( $post_id ) ) {
+		if ( ! isset( $_POST['_sidrest_extras_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_sidrest_extras_nonce'] ) ), 'sidrest_extras' ) || ! self::can_save( $post_id ) ) {
 			return;
 		}
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Checked in can_save().
-		$raw  = isset( $_POST['sidrest_times'] ) && is_array( $_POST['sidrest_times'] ) ? wp_unslash( $_POST['sidrest_times'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized below.
+		$raw  = isset( $_POST['sidrest_times'] ) && is_array( $_POST['sidrest_times'] ) ? wp_unslash( $_POST['sidrest_times'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Each value is checked below (days as integers 0–6, times as HH:MM).
 		$time = static function ( $v ) {
 			return preg_match( '/^\d{2}:\d{2}$/', (string) $v ) ? (string) $v : '';
 		};
