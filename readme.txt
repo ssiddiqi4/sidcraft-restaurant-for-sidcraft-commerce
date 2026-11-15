@@ -9,7 +9,7 @@ Stable tag: 1.2.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Restaurant menus and ordering for Sidcraft Commerce: opening hours, time slots, kitchen screen, table QR ordering, tips, reservations and delivery.
+Restaurant menus and ordering for Sidcraft Commerce: hours, time slots, kitchen screen, table QR orders, reservations, delivery.
 
 == Description ==
 
