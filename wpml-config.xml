@@ -1,0 +1,39 @@
+<wpml-config>
+	<custom-types>
+		<custom-type translate="1">sidrest_menu</custom-type>
+		<custom-type translate="1">sidrest_section</custom-type>
+		<custom-type translate="1">sidrest_item</custom-type>
+	</custom-types>
+	<taxonomies>
+		<taxonomy translate="1">sidrest_item_cat</taxonomy>
+	</taxonomies>
+	<custom-fields>
+		<custom-field action="copy">_sidrest_sections</custom-field>
+		<custom-field action="copy">_sidrest_items</custom-field>
+		<custom-field action="copy">_sidrest_display</custom-field>
+		<custom-field action="copy">_sidrest_dietary</custom-field>
+		<custom-field action="copy">_sidrest_badges</custom-field>
+		<custom-field action="copy">_sidrest_promo</custom-field>
+		<custom-field action="copy">_sidrest_related</custom-field>
+		<custom-field action="copy">_sidrest_orderable</custom-field>
+		<custom-field action="translate">_sidrest_prices</custom-field>
+		<custom-field action="translate">_sidrest_note</custom-field>
+		<custom-field action="translate">_sidrest_footer</custom-field>
+		<custom-field action="translate">_sidrest_cf</custom-field>
+		<custom-field action="translate">_sidrest_suppliers</custom-field>
+		<custom-field action="ignore">_sidrest_product_id</custom-field>
+	</custom-fields>
+	<admin-texts>
+		<key name="sidrest_settings">
+			<key name="labels">
+				<key name="*" />
+			</key>
+			<key name="restaurant_name" />
+			<key name="cuisine" />
+			<key name="delivery">
+				<key name="links_heading" />
+				<key name="store_notes" />
+			</key>
+		</key>
+	</admin-texts>
+</wpml-config>

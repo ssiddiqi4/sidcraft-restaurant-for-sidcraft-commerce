@@ -1,0 +1,62 @@
+/* Sidcraft Restaurant — admin. */
+.sidrest-picker__list { margin: 8px 0; padding: 0; list-style: none; }
+.sidrest-picker__row { margin: 0 0 6px; background: #fff; border: 1px solid #dcdcde; border-radius: 6px; }
+.sidrest-picker__row.is-dragging { opacity: .5; border-style: dashed; }
+.sidrest-picker__main { display: flex; align-items: center; gap: 10px; padding: 8px 10px; }
+.sidrest-picker__handle { cursor: grab; color: #8c8f94; letter-spacing: -2px; user-select: none; }
+.sidrest-picker__label { flex: 1; font-weight: 600; }
+.sidrest-picker__label a { text-decoration: none; }
+.sidrest-picker__tools { display: flex; gap: 2px; }
+.sidrest-picker__tools .button-link { min-width: 28px; min-height: 28px; font-size: 16px; text-decoration: none; border-radius: 4px; }
+.sidrest-picker__tools .button-link:hover { background: #f0f0f1; }
+.sidrest-picker__remove { color: #b32d2e !important; }
+.sidrest-picker__add { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.sidrest-picker__add select { max-width: 100%; min-width: 240px; }
+.sidrest-picker__empty { color: #646970; font-style: italic; margin: 8px 0; }
+.sidrest-picker__nested { padding: 0 10px 10px 34px; }
+.sidrest-picker__nested summary { cursor: pointer; color: #2271b1; padding: 2px 0 6px; }
+.sidrest-picker__nested .sidrest-picker__row { background: #f6f7f7; }
+.sidrest-picker__note { margin: 0 10px 8px 34px; }
+.sidrest-new { margin-top: 16px; padding-top: 12px; border-top: 1px solid #f0f0f1; }
+.sidrest-new label { font-weight: 600; display: block; margin-bottom: 4px; }
+.sidrest-repeater__table { margin: 8px 0; }
+.sidrest-repeater__table td, .sidrest-repeater__table th { vertical-align: middle; }
+.sidrest-repeater__tools { width: 36px; text-align: center; }
+.sidrest-repeater__tools .button-link { font-size: 18px; text-decoration: none; }
+.sidrest-checks { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 0 0 12px; padding: 0; border: 0; }
+.sidrest-checks legend { font-weight: 600; margin-bottom: 6px; padding: 0; }
+.sidrest-checks label { display: inline-flex; align-items: center; gap: 6px; }
+.sidrest-checks--grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+.sidrest-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0 16px; }
+.sidrest-grid label { display: block; font-weight: 600; margin-bottom: 4px; }
+.sidrest-grid input[type="text"], .sidrest-grid input[type="date"], .sidrest-grid input[type="time"] { width: 100%; }
+.sidrest-inline { display: flex; gap: 6px; }
+.sidrest-scroll { max-height: 220px; overflow: auto; }
+.sidrest-block-check { display: block; margin: 0 0 6px; }
+.sidrest-copy { user-select: all; }
+.sidrest-diet {
+	display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%;
+	background: var(--sidrest-diet, #15803d); color: #fff; font-size: 9px; font-weight: 800; line-height: 1;
+}
+.sidrest-diet--spicy { font-size: 11px; }
+.sidrest-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.sidrest-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #fff; background: #57534e; }
+.sidrest-badge--new { background: #2563eb; }
+.sidrest-badge--special { background: #7c3aed; }
+.sidrest-badge--chef { background: #0f766e; }
+.sidrest-badge--popular { background: #db2777; }
+.sidrest-badge--seasonal { background: #65a30d; }
+.sidrest-prices { display: flex; flex-wrap: wrap; gap: 2px 10px; }
+.sidrest-price__label { color: #646970; }
+.sidrest-price__was { color: #8c8f94; }
+.sidrest-price ins { text-decoration: none; color: #b45309; }
+.column-sidrest_photo { width: 52px; }
+.column-sidrest_photo img { width: 40px; height: 40px; object-fit: cover; border-radius: 6px; }
+.column-sidrest_order { width: 70px; }
+.sidrest-qr-tool { display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; margin-top: 16px; }
+.sidrest-qr-tool__form { flex: 1 1 360px; max-width: 520px; }
+.sidrest-qr-tool__preview { flex: 0 1 320px; text-align: center; }
+.sidrest-qr-tool__code { width: 300px; max-width: 100%; aspect-ratio: 1; margin: 0 auto; background: #fff; border: 1px solid #dcdcde; border-radius: 8px; padding: 8px; }
+.sidrest-qr-tool__code svg { width: 100%; height: 100%; display: block; }
+.sidrest-qr-tool__link { word-break: break-all; color: #646970; }
+.sidrest-qr-tool__buttons { display: flex; gap: 8px; flex-wrap: wrap; }
